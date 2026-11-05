@@ -3,62 +3,62 @@
     "gistemp/GLB.Ts+dSST.csv": {
       "bytes": 12886,
       "last_observation": "2026-09",
-      "note": "Byte-identical copy of the NASA file.",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T06:45:00Z",
+      "note": "",
+      "retrieval_method": "direct HTTPS",
+      "retrieved_utc": "2026-11-05T09:34:23+00:00",
       "sha256": "4c64eda288bce32b8d76926278f346ecea1e53506df8ee72a3d5accb0657c416",
-      "source_published": "2026-10-22T18:37:35Z (HTTP Last-Modified)",
+      "source_published": null,
       "url": "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
     },
     "gistemp/GLB.Ts.csv": {
       "bytes": 12986,
       "last_observation": "2026-09",
-      "note": "Byte-identical copy of the NASA file.",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T06:47:00Z",
+      "note": "",
+      "retrieval_method": "direct HTTPS",
+      "retrieved_utc": "2026-11-05T09:34:24+00:00",
       "sha256": "0ba691cd181374b2aa8c1289a125504e3e892911747c5554e0c7414502135ab5",
-      "source_published": "2026-10-22T18:37:35Z (HTTP Last-Modified)",
+      "source_published": null,
       "url": "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts.csv"
     },
     "gistemp/map_10deg.csv": {
-      "bytes": 11326,
-      "last_observation": "2026 Jul-Sep",
-      "note": "Jul-Sep 2026 anomaly vs 1951-1980 and 1981-2025 annual change map, 2x2 deg reduced to 10x10 deg blocks (pipeline.sources.downsample_gistemp_grid).",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T07:05:00Z",
-      "sha256": "ac35317a375cd9fe8b2daefb27e3217120555ee6c6d6ca2cc3c02292584d913f",
+      "bytes": 11327,
+      "last_observation": "2026 Jul-Sep2026",
+      "note": "",
+      "retrieval_method": "amaps.cgi + 10x10 cos-lat block mean",
+      "retrieved_utc": "2026-11-05T09:40:19+00:00",
+      "sha256": "28b2d1085ba79180c2a0b25c1d5c93e47c7ec083e29dab4883d2b396fab93da1",
       "source_published": null,
-      "url": "https://data.giss.nasa.gov/cgi-bin/gistemp/amaps.cgi (GHCNv4+ERSSTv5, 1200 km)"
+      "url": "https://data.giss.nasa.gov/gistemp/maps/"
     },
     "gistemp/zonal_2deg.csv": {
-      "bytes": 1430,
-      "last_observation": "2026 Jul-Sep",
-      "note": "GISS zonal means for the same two maps.",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T07:05:00Z",
-      "sha256": "df9b508695e44c7004d7703e411f21196bd6ca569b5bd597fe47244c11efab5c",
+      "bytes": 1444,
+      "last_observation": "2026 Jul-Sep2026",
+      "note": "",
+      "retrieval_method": "amaps.cgi + 10x10 cos-lat block mean",
+      "retrieved_utc": "2026-11-05T09:40:19+00:00",
+      "sha256": "306646b20ff7d902793b44742ef29cec584365b87aeca0e3fdbd483205e2c500",
       "source_published": null,
-      "url": "https://data.giss.nasa.gov/cgi-bin/gistemp/amaps.cgi"
+      "url": "https://data.giss.nasa.gov/gistemp/maps/"
     },
     "nasa_power/grid20_global_sample_monthly.csv": {
       "bytes": 14331,
-      "last_observation": "2026-09 (AOD_55: 2026-07)",
-      "note": "cos(lat)-weighted mean over valid points, months with >=90% weight coverage; reduction code = pipeline.sources.reduce_power.",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T06:57:58Z",
+      "last_observation": "202609",
+      "note": "",
+      "retrieval_method": "POWER API x126 points",
+      "retrieved_utc": "2026-11-05T09:40:15+00:00",
       "sha256": "f7bb3494668c0ea79ae8a0129b1c26470f1ba4b1dd5c959bf71d7e9f2f7560f4",
       "source_published": null,
-      "url": "https://power.larc.nasa.gov/api/temporal/monthly/point (API v2.10.0, 126 requests)"
+      "url": "https://power.larc.nasa.gov/api/temporal/monthly/point"
     },
     "nasa_power/grid20_point_stats.csv": {
       "bytes": 14701,
-      "last_observation": "2026-09 (AOD_55: 2026-07)",
-      "note": "Per-point 1991-2020 mean, last-12-month anomaly vs 1991-2020 calendar-month climatology, OLS trend per decade of annual means 1981-2025.",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T06:57:58Z",
-      "sha256": "b5706467964b17dc12d461af6710c928c27b4b7b01c891b7b38d6fbb6e4f22ca",
+      "last_observation": "202609",
+      "note": "",
+      "retrieval_method": "POWER API x126 points",
+      "retrieved_utc": "2026-11-05T09:40:15+00:00",
+      "sha256": "7f876ce42c9d449d40c5f4c470e5432a079a8e9757a97aefe17a684f288fa848",
       "source_published": null,
-      "url": "https://power.larc.nasa.gov/api/temporal/monthly/point (API v2.10.0, 126 requests)"
+      "url": "https://power.larc.nasa.gov/api/temporal/monthly/point"
     },
     "nasa_sealevel/gmsl_vital_sign.csv": {
       "bytes": 25610,
@@ -73,9 +73,9 @@
     "ncei/global_ocean_tavg_1950_2026.csv": {
       "bytes": 11061,
       "last_observation": "2026-09",
-      "note": "Data rows only (header comments: Global Ocean Average Temperature Departures, degC, base 1901-2000).",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T06:50:00Z",
+      "note": "",
+      "retrieval_method": "direct HTTPS",
+      "retrieved_utc": "2026-11-05T09:34:24+00:00",
       "sha256": "f8f14ca815dbeaac52068635feae7180109cdc63a67de2387df1835846354b3f",
       "source_published": null,
       "url": "https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/globe/ocean/tavg/1/0/1950-2026/data.csv"
@@ -83,22 +83,22 @@
     "noaa_gml/co2_mm_mlo.csv": {
       "bytes": 20618,
       "last_observation": "2026-09",
-      "note": "Columns year-month, average, deseasonalized, ndays. Canonical (year-month, average) content SHA-256 098a3cd8... matched NOAA's live file for all 823 months.",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T06:48:00Z",
+      "note": "",
+      "retrieval_method": "direct HTTPS",
+      "retrieved_utc": "2026-11-05T09:34:24+00:00",
       "sha256": "25c161f9212d3bb0328e67542f98d182718bfa8811da6f1216f10fd8377a7c71",
-      "source_published": "2026-10-09 13:08:07 (NOAA '# File Creation')",
+      "source_published": "Fri Oct  9 13:08:07 2026",
       "url": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv"
     },
     "nsidc/N_monthly_extent_area_v4.0.csv": {
       "bytes": 11031,
       "last_observation": "2026-10",
-      "note": "Columns year-month, extent, area (million km2); -9999 = missing in source.",
-      "retrieval_method": "NASA/NOAA/NSIDC endpoint fetched in a real browser on 2026-11-05; SHA-256 of the stored file verified equal to the SHA-256 computed in the browser on the bytes received",
-      "retrieved_utc": "2026-11-05T06:52:00Z",
+      "note": "",
+      "retrieval_method": "direct HTTPS (12 monthly files merged)",
+      "retrieved_utc": "2026-11-05T09:38:50+00:00",
       "sha256": "fbf6c24520eb778a98fa284ed8cf909301f449eb1314a8d44d8b662f8220a7fa",
-      "source_published": "2026-11-02 14:40 (directory listing)",
-      "url": "https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/N_MM_extent_v4.0.csv (x12)"
+      "source_published": null,
+      "url": "https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/"
     }
   },
   "snapshot": "2026-11-05 browser-verified snapshot"
