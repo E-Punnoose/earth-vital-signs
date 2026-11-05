@@ -1,0 +1,1064 @@
+<title>Earth Vital Signs Monitor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Global environmental monitoring and two-year forecasts built from NASA observations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: research-instrument page — sticky top header, 1240px column, sections divided by hairlines and whitespace;
+   white surfaces only where data is plotted or tabulated. Observations charcoal, forecasts ocean blue, trends forest green. */
+:root {
+  --bg: #f7f6f2;          /* warm off-white page */
+  --surface: #ffffff;
+  --ink: #1c2320;         /* deep charcoal, slight green bias */
+  --ink-2: #545d59;
+  --ink-3: #858c88;
+  --rule: #e2e0d9;
+  --rule-soft: #eeece6;
+  --green: #1e5b43;       /* primary accent: deep forest green */
+  --green-soft: #e5eee9;
+  --ocean: #2e5e80;       /* secondary accent: muted ocean blue (forecasts) */
+  --ocean-soft: #e5ecf2;
+  --band-80: rgba(46, 94, 128, .17);
+  --band-95: rgba(46, 94, 128, .08);
+  --pos: #3d7a50; --pos-soft: #e7f0e9;
+  --warn: #9a721f; --warn-soft: #f5edda;
+  --crit: #a3453a; --crit-soft: #f4e4e1;
+  --map-ocean: #edf0ef;
+  --map-line: rgba(28, 35, 32, .62);
+  --font-head: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --t-xs: .75rem; --t-sm: .8125rem; --t-base: .9375rem; --t-md: 1.0625rem; --t-lg: 1.3125rem; --t-xl: 1.75rem; --t-2xl: 2.125rem;
+  --r: 6px;
+  --col: 1240px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121614; --surface: #181d1b; --ink: #e5e9e6; --ink-2: #a7b0ab; --ink-3: #7b847f; --rule: #2a312e; --rule-soft: #212725;
+  --green: #74b694; --green-soft: #1b2c24; --ocean: #80aed0; --ocean-soft: #1a2732; --band-80: rgba(128,174,208,.22); --band-95: rgba(128,174,208,.10);
+  --pos: #82b993; --pos-soft: #1c2b21; --warn: #d8b05a; --warn-soft: #30291a; --crit: #e08b7f; --crit-soft: #33201d;
+  --map-ocean: #1b2120; --map-line: rgba(229,233,230,.55); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121614; --surface: #181d1b; --ink: #e5e9e6; --ink-2: #a7b0ab; --ink-3: #7b847f; --rule: #2a312e; --rule-soft: #212725;
+  --green: #74b694; --green-soft: #1b2c24; --ocean: #80aed0; --ocean-soft: #1a2732; --band-80: rgba(128,174,208,.22); --band-95: rgba(128,174,208,.10);
+  --pos: #82b993; --pos-soft: #1c2b21; --warn: #d8b05a; --warn-soft: #30291a; --crit: #e08b7f; --crit-soft: #33201d;
+  --map-ocean: #1b2120; --map-line: rgba(229,233,230,.55); color-scheme: dark }
+
+* { box-sizing: border-box }
+html, body { background: var(--bg); color: var(--ink) }
+body { margin: 0; font: 400 var(--t-base)/1.55 var(--font-body); -webkit-font-smoothing: antialiased }
+h1, h2, h3 { font-family: var(--font-head); color: var(--ink); margin: 0; text-wrap: balance; letter-spacing: -.01em }
+h1 { font-size: var(--t-2xl); font-weight: 600; line-height: 1.2 }
+h2 { font-size: var(--t-lg); font-weight: 600; line-height: 1.3 }
+h3 { font-size: var(--t-md); font-weight: 600; line-height: 1.35 }
+p { margin: 0 }
+a { color: var(--green); text-underline-offset: 2px }
+a:hover { color: var(--ink) }
+:focus-visible { outline: 2px solid var(--ocean); outline-offset: 2px; border-radius: 3px }
+.mono, .num { font-family: var(--font-data); font-variant-numeric: tabular-nums }
+.eyebrow { font: 600 var(--t-xs)/1.3 var(--font-body); color: var(--ink-3); text-transform: uppercase; letter-spacing: .09em }
+.muted { color: var(--ink-2) } .faint { color: var(--ink-3) } .small { font-size: var(--t-sm) } .xs { font-size: var(--t-xs) }
+.wrap { max-width: var(--col); margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)) }
+
+/* ---------------- header ---------------- */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: var(--surface) }
+.site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); border-bottom: 1px solid var(--rule) }
+.head-row { display: flex; align-items: center; gap: 28px; height: 60px }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); flex: none }
+.brand svg { width: 26px; height: 26px }
+.brand b { font: 700 1rem/1 var(--font-head); letter-spacing: -.01em }
+.brand span { display: block; font: 500 .6875rem/1.2 var(--font-body); color: var(--ink-3); letter-spacing: .04em; margin-top: 3px }
+.nav { display: flex; gap: 2px; flex: 1; min-width: 0 }
+.nav a { padding: 8px 12px; border-radius: var(--r); color: var(--ink-2); text-decoration: none; font-weight: 500; font-size: var(--t-sm); white-space: nowrap; transition: background .15s, color .15s }
+.nav a:hover { background: var(--rule-soft); color: var(--ink) }
+.nav a[aria-current="page"] { color: var(--green); background: var(--green-soft) }
+.fresh { display: flex; align-items: center; gap: 10px; flex: none; font-size: var(--t-xs); color: var(--ink-2); text-align: right; line-height: 1.35 }
+.fresh .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pos); box-shadow: 0 0 0 3px var(--pos-soft); flex: none }
+.fresh b { font-weight: 600; color: var(--ink) }
+.menu-btn { display: none; margin-left: auto; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: var(--r); padding: 6px 10px; font: 500 var(--t-sm) var(--font-body); cursor: pointer }
+.mobile-panel { display: none }
+
+/* ---------------- page structure ---------------- */
+main { min-height: 60vh }
+.view { padding-block: 36px 72px; display: grid; gap: 48px; animation: enter .22s ease-out both }
+@keyframes enter { from { opacity: .001; transform: translateY(4px) } to { opacity: 1; transform: none } }
+.sec { display: grid; gap: 18px; min-width: 0; align-content: start }
+.sec-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; padding-bottom: 12px; border-bottom: 1px solid var(--rule) }
+.sec-head > div:not(.seg) { display: grid; gap: 4px; min-width: 0 }
+.sec-head p { color: var(--ink-2); font-size: var(--t-sm); max-width: 70ch }
+.surface { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r); padding: 20px 22px; min-width: 0 }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px }
+.cols-wide { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 32px; align-items: start }
+
+/* ---------------- status hero ---------------- */
+.status { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 48px; align-items: end; padding-bottom: 8px }
+.status h1 { font-size: clamp(1.6rem, 2.6vw, 2.25rem); max-width: 26ch }
+.status .lede { margin-top: 14px; color: var(--ink-2); font-size: var(--t-md); max-width: 62ch }
+.facts { display: grid; gap: 0; border-top: 1px solid var(--rule); margin: 0 }
+.facts div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule-soft); font-size: var(--t-sm) }
+.facts dt { color: var(--ink-2) } .facts dd { margin: 0; font-family: var(--font-data); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap }
+
+/* ---------------- indicator table ---------------- */
+.ind { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden }
+.ind th { font: 600 .6875rem/1.2 var(--font-body); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--rule); white-space: nowrap; background: var(--surface) }
+.ind td { padding: 12px 14px; border-bottom: 1px solid var(--rule-soft); vertical-align: middle; font-size: var(--t-sm) }
+.ind tr:last-child td { border-bottom: 0 }
+.ind tbody tr { cursor: pointer; transition: background .12s }
+.ind tbody tr:hover td { background: var(--bg) }
+.ind tbody tr[aria-selected="true"] td { background: var(--green-soft) }
+.ind tbody tr[aria-selected="true"] td:first-child { box-shadow: inset 3px 0 0 var(--green) }
+.ind .nm { font-weight: 600; color: var(--ink); font-size: var(--t-base) }
+.ind .src { color: var(--ink-3); font-size: var(--t-xs); margin-top: 2px }
+.ind .val { font: 500 var(--t-md)/1.2 var(--font-data); white-space: nowrap }
+.ind .val small, .u { font: 400 var(--t-xs) var(--font-body); color: var(--ink-3); margin-left: 4px }
+.ind .when { color: var(--ink-3); font-size: var(--t-xs); margin-top: 2px; white-space: nowrap }
+.ind td.r, .ind th.r { text-align: right }
+.ind .spark { width: 132px; height: 34px; display: block }
+.delta { font-family: var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap }
+.delta i { font-style: normal; font-size: .7rem; margin-right: 4px; color: var(--ink-3) }
+
+.tag { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 8px; border-radius: 4px; font: 500 var(--t-xs)/1.7 var(--font-body); white-space: nowrap }
+.tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor }
+.tag.crit { color: var(--crit); background: var(--crit-soft) }
+.tag.warn { color: var(--warn); background: var(--warn-soft) }
+.tag.pos { color: var(--pos); background: var(--pos-soft) }
+.tag.neu { color: var(--ink-2); background: var(--rule-soft) }
+.tag.info { color: var(--ocean); background: var(--ocean-soft) }
+
+/* ---------------- charts ---------------- */
+.chart-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 20px; margin-bottom: 14px }
+.chart { width: 100%; height: 400px }
+.chart.h-lg { height: 460px } .chart.h-sm { height: 280px }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--t-xs); color: var(--ink-2); margin-bottom: 6px }
+.legend span { display: inline-flex; align-items: center; gap: 7px }
+.legend i { display: inline-block; width: 20px; height: 0; border-top: 2px solid var(--ink) }
+.legend i.obs { border-top: 1px solid var(--ink-3) }
+.legend i.trend { border-top: 2px dotted var(--green) }
+.legend i.fc { border-top: 2px dashed var(--ocean) }
+.legend i.band { height: 10px; border: 0; background: var(--band-80); box-shadow: 0 0 0 3px var(--band-95) }
+.legend i.base { border-top: 1px dashed var(--ink-3) }
+.legend i.win { height: 10px; border: 0; background: var(--rule-soft); outline: 1px solid var(--rule) }
+.caption { font-size: var(--t-xs); color: var(--ink-3); margin-top: 10px; max-width: 90ch }
+.stat-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--rule); margin-top: 16px }
+.stat-row > div { padding: 14px 16px 2px 0; display: grid; gap: 4px; align-content: start; min-width: 0 }
+.stat-row > div + div { padding-left: 16px; border-left: 1px solid var(--rule-soft) }
+.stat-row .v { font: 500 var(--t-lg)/1.15 var(--font-data); font-variant-numeric: tabular-nums }
+.stat-row .v small { font: 400 var(--t-xs) var(--font-body); color: var(--ink-3); margin-left: 4px }
+.stat-row .s { font-size: var(--t-xs); color: var(--ink-2) }
+
+/* ---------------- controls ---------------- */
+.seg { display: inline-flex; background: var(--rule-soft); border-radius: var(--r); padding: 3px; gap: 2px }
+.seg button { border: 0; background: none; padding: 5px 11px; border-radius: 4px; font: 500 var(--t-xs) var(--font-body); color: var(--ink-2); cursor: pointer; transition: background .12s, color .12s; white-space: nowrap }
+.seg button:hover { color: var(--ink) }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(28,35,32,.12) }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--rule); margin: -4px 0 16px }
+.tabs button { border: 0; background: none; padding: 9px 12px; font: 500 var(--t-sm) var(--font-body); color: var(--ink-2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap }
+.tabs button:hover { color: var(--ink) }
+.tabs button[aria-selected="true"] { color: var(--green); border-bottom-color: var(--green) }
+.field { display: grid; gap: 5px }
+.field label, .field .lab { font: 600 .6875rem/1 var(--font-body); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em }
+select { appearance: none; font: 500 var(--t-sm) var(--font-body); color: var(--ink); background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23858c88' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border: 1px solid var(--rule); border-radius: var(--r); padding: 8px 30px 8px 11px; max-width: 100%; cursor: pointer }
+select:hover { border-color: var(--ink-3) }
+.toolbar { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: end; padding: 16px 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r) }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.chip { border: 1px solid var(--rule); background: var(--surface); color: var(--ink-3); padding: 5px 11px 5px 9px; border-radius: 4px; font: 500 var(--t-xs) var(--font-body); cursor: pointer; display: inline-flex; align-items: center; gap: 7px }
+.chip i { width: 12px; height: 2px; opacity: .35 }
+.chip[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-3) }
+.chip[aria-pressed="true"] i { opacity: 1 }
+.btn-link { border: 0; background: none; padding: 0; font: 500 var(--t-sm) var(--font-body); color: var(--green); cursor: pointer; text-decoration: underline; text-underline-offset: 2px }
+
+/* ---------------- tables & lists ---------------- */
+.tbl { overflow-x: auto }
+table.t { border-collapse: collapse; width: 100%; font-size: var(--t-sm) }
+.t th { font: 600 .6875rem/1.2 var(--font-body); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap }
+.t td { padding: 10px 12px; border-bottom: 1px solid var(--rule-soft); vertical-align: top }
+.t td.r, .t th.r { text-align: right; white-space: nowrap }
+.t tr.sel td { background: var(--green-soft) }
+.t tr.go { cursor: pointer } .t tr.go:hover td { background: var(--surface) }
+dl.kv { display: grid; grid-template-columns: minmax(120px, auto) minmax(0, 1fr); margin: 0; font-size: var(--t-sm) }
+dl.kv dt, dl.kv dd { padding: 9px 0; border-bottom: 1px solid var(--rule-soft); margin: 0 }
+dl.kv dt { color: var(--ink-2); padding-right: 16px }
+dl.kv dd { overflow-wrap: anywhere }
+ul.notes { margin: 0; padding: 0; list-style: none; display: grid; font-size: var(--t-sm); color: var(--ink-2) }
+ul.notes li { padding: 9px 0 9px 16px; border-bottom: 1px solid var(--rule-soft); position: relative }
+ul.notes li::before { content: ""; position: absolute; left: 0; top: 18px; width: 6px; height: 1px; background: var(--ink-3) }
+ul.notes b { color: var(--ink); font-weight: 600 }
+.meter { position: relative; height: 6px; background: var(--rule-soft); border-radius: 3px; min-width: 60px }
+.meter b { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--ocean) }
+.meter s { position: absolute; top: -3px; bottom: -3px; width: 1px; left: 50%; background: var(--ink-3) }
+
+/* ---------------- findings ---------------- */
+.findings { display: grid; border-top: 1px solid var(--rule) }
+.finding { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--rule-soft) }
+.finding p { color: var(--ink-2); font-size: var(--t-sm); margin-top: 4px; max-width: 78ch }
+.finding h3 { font-size: var(--t-base) }
+.outlook { display: grid; border-top: 1px solid var(--rule) }
+.outlook button { display: grid; grid-template-columns: 22px minmax(0, 1fr) minmax(60px, 96px) 56px; gap: 12px; align-items: center; padding: 11px 4px; border: 0; border-bottom: 1px solid var(--rule-soft); background: none; text-align: left; font: inherit; color: inherit; cursor: pointer }
+.outlook button:hover { background: var(--surface) }
+.outlook .rk { font: 500 var(--t-xs) var(--font-data); color: var(--ink-3) }
+.outlook .pc { font: 500 var(--t-sm) var(--font-data); text-align: right }
+
+/* ---------------- parameter page ---------------- */
+.param-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 44px; align-items: start }
+.subnav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); display: grid; gap: 1px }
+.subnav .eyebrow { margin-bottom: 8px }
+.subnav button { display: grid; gap: 1px; text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 0 var(--r) var(--r) 0; cursor: pointer; font: inherit; color: var(--ink-2); border-left: 2px solid var(--rule) }
+.subnav button b { font-weight: 500; font-size: var(--t-sm); color: inherit }
+.subnav button span { font: 400 var(--t-xs) var(--font-data); color: var(--ink-3) }
+.subnav button:hover { background: var(--rule-soft); color: var(--ink) }
+.subnav button[aria-current="true"] { color: var(--green); background: var(--green-soft); border-left-color: var(--green) }
+.p-mobile-sel { display: none }
+.p-head { display: grid; gap: 12px; max-width: 880px }
+.p-head .desc { font-size: var(--t-md); color: var(--ink-2); max-width: 72ch }
+.meta-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; font-size: var(--t-xs); color: var(--ink-3) }
+.meta-line b { color: var(--ink-2); font-weight: 500 }
+.figures { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule) }
+.figures > div { padding: 16px 18px 16px 0; display: grid; gap: 6px; align-content: start; min-width: 0 }
+.figures > div + div { padding-left: 18px; border-left: 1px solid var(--rule-soft) }
+.figures .v { font: 500 var(--t-xl)/1.1 var(--font-data); font-variant-numeric: tabular-nums; letter-spacing: -.01em }
+.figures .v small { font: 400 var(--t-sm) var(--font-body); color: var(--ink-3); margin-left: 5px }
+.figures .s { font-size: var(--t-xs); color: var(--ink-2) }
+.p-section { display: grid; gap: 16px; min-width: 0; align-content: start }
+
+/* ---------------- map ---------------- */
+.layer-list { display: grid; gap: 16px }
+.layer-group { display: grid; gap: 3px }
+.layer-group .eyebrow { margin-bottom: 3px }
+.layer-group button { text-align: left; border: 1px solid transparent; background: none; padding: 8px 10px; border-radius: var(--r); cursor: pointer; font: 500 var(--t-sm)/1.35 var(--font-body); color: var(--ink-2) }
+.layer-group button:hover { background: var(--rule-soft); color: var(--ink) }
+.layer-group button[aria-pressed="true"] { background: var(--surface); border-color: var(--rule); color: var(--ink); box-shadow: inset 2px 0 0 var(--green) }
+.scale { display: grid; gap: 4px; width: min(100%, 320px) }
+.scale .bar { height: 10px; border-radius: 2px }
+.scale .ticks { display: flex; justify-content: space-between; font: 400 var(--t-xs) var(--font-data); color: var(--ink-2) }
+.map-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; align-items: start }
+.map-box { height: auto; aspect-ratio: 2.06 / 1; max-height: 560px }
+
+/* ---------------- footer ---------------- */
+.site-foot { border-top: 1px solid var(--rule); background: var(--surface); padding-block: 32px 28px }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(0, .9fr); gap: 32px }
+.foot-grid h4 { margin: 0 0 10px; font: 600 .6875rem/1 var(--font-body); color: var(--ink-3); text-transform: uppercase; letter-spacing: .09em }
+.foot-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: var(--t-sm) }
+.foot-grid a { color: var(--ink-2); text-decoration: none } .foot-grid a:hover { color: var(--green); text-decoration: underline }
+.credit b { display: block; font: 600 var(--t-base)/1.3 var(--font-head); color: var(--ink) }
+.credit span { display: block; font: 400 var(--t-xs)/1.5 var(--font-data); color: var(--ink-3); margin-top: 2px }
+.foot-base { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--rule-soft); font-size: var(--t-xs); color: var(--ink-3) }
+.theme { display: inline-flex; gap: 2px; background: var(--rule-soft); padding: 2px; border-radius: 4px }
+.theme button { border: 0; background: none; font: 500 .6875rem var(--font-body); color: var(--ink-2); padding: 3px 8px; border-radius: 3px; cursor: pointer }
+.theme button[aria-pressed="true"] { background: var(--surface); color: var(--ink) }
+
+/* ---------------- states ---------------- */
+.loading { padding-block: 56px; display: grid; gap: 14px; max-width: 640px }
+.loading .bar { height: 12px; border-radius: 3px; background: var(--rule-soft) }
+.loading .bar:nth-child(3) { width: 72% } .loading .bar:nth-child(4) { width: 48% }
+.err { padding: 18px 20px; border: 1px solid var(--rule); background: var(--surface); border-left: 3px solid var(--crit); border-radius: var(--r); max-width: 720px; display: grid; gap: 6px }
+.note { font-size: var(--t-sm); color: var(--ink-2); padding: 12px 14px; border-left: 2px solid var(--warn); background: var(--warn-soft); border-radius: 0 var(--r) var(--r) 0 }
+
+/* ---------------- responsive ---------------- */
+@media (max-width: 1180px) {
+  .fresh .lbl { display: none }
+  .cols-wide { grid-template-columns: minmax(0, 1fr) }
+  .param-layout { grid-template-columns: minmax(0, 1fr) }
+  .subnav { display: none } .p-mobile-sel { display: grid; max-width: 360px }
+}
+@media (max-width: 960px) {
+  .nav, .fresh { display: none }
+  .menu-btn { display: inline-flex }
+  .mobile-panel { display: block; border-top: 1px solid var(--rule) }
+  .mobile-panel[hidden] { display: none }
+  .mobile-panel nav { display: grid; padding-block: 8px }
+  .mobile-panel a { padding: 11px 4px; color: var(--ink); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--rule-soft) }
+  .mobile-panel a[aria-current="page"] { color: var(--green) }
+  .mobile-panel .mfresh { padding: 12px 4px 14px; font-size: var(--t-xs); color: var(--ink-2) }
+  .status, .cols, .map-layout { grid-template-columns: minmax(0, 1fr) }
+  .status { gap: 24px }
+  .figures, .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .figures > div:nth-child(3), .stat-row > div:nth-child(3) { padding-left: 0; border-left: 0 }
+  .figures > div:nth-child(n+3), .stat-row > div:nth-child(n+3) { border-top: 1px solid var(--rule-soft) }
+  .foot-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) }
+  .foot-grid .credit-col { grid-column: 1 / -1 }
+  .layer-list { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) }
+}
+@media (max-width: 720px) {
+  .view { padding-block: 24px 56px; gap: 36px }
+  .chart { height: 320px } .chart.h-lg { height: 340px } .chart.h-sm { height: 250px }
+  .surface { padding: 16px 14px }
+  .finding { grid-template-columns: minmax(0, 1fr); gap: 4px }
+  .ind thead { display: none }
+  .ind, .ind tbody, .ind tr { display: block }
+  .ind tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 12px 14px; border-bottom: 1px solid var(--rule-soft) }
+  .ind tbody tr:last-child { border-bottom: 0 }
+  .ind td { padding: 0; border: 0 !important; background: none !important }
+  .ind td.c-name { grid-column: 1; grid-row: 1 }
+  .ind td.c-val { grid-column: 2; grid-row: 1; text-align: right }
+  .ind td.c-yoy { grid-column: 1; grid-row: 2; text-align: left; align-self: center } .ind td.c-yoy::before { content: "vs year earlier  "; color: var(--ink-3); font-size: var(--t-xs) }
+  .ind td.c-spark { grid-column: 2; grid-row: 2 } .ind .spark { width: 96px; height: 26px }
+  .ind td.c-out { grid-column: 1 / -1; grid-row: 3 }
+  .ind td.c-base, .ind td.c-trend { display: none }
+  .ind tbody tr[aria-selected="true"] { background: var(--green-soft); box-shadow: inset 3px 0 0 var(--green) }
+  .ind tbody tr[aria-selected="true"] td:first-child { box-shadow: none }
+  .foot-grid { grid-template-columns: minmax(0, 1fr) }
+  .outlook button { grid-template-columns: 18px minmax(0, 1fr) 56px 52px; gap: 8px }
+  .figures .v { font-size: var(--t-lg) }
+  .toolbar { padding: 14px }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important } }
+</style>
+
+<header class="site-head">
+  <div class="wrap">
+    <div class="head-row">
+      <a class="brand" href="#overview" aria-label="Earth Vital Signs Monitor home">
+        <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--green)" stroke-width="1.6"/><path d="M1.8 13h22.4M4 7.2h18M4 18.8h18" stroke="var(--green)" stroke-width="1" opacity=".5" fill="none"/><path d="M5.5 16.5l4-3.6 3.2 2 4.2-5.2 3.6 2.4" fill="none" stroke="var(--ocean)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><b>Earth Vital Signs Monitor</b><span>Environmental intelligence</span></div>
+      </a>
+      <nav class="nav" id="nav" aria-label="Primary"></nav>
+      <div class="fresh" id="fresh"></div>
+      <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-panel">Menu</button>
+    </div>
+  </div>
+  <div class="mobile-panel" id="mobile-panel" hidden><div class="wrap"><nav id="mnav" aria-label="Primary"></nav><div class="mfresh" id="mfresh"></div></div></div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div class="wrap"><div class="loading" aria-live="polite"><span class="eyebrow">Loading NASA data products</span><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>About</h4>
+        <p class="small muted" style="max-width:46ch">Observations, trend analysis and validated two-year forecasts for eight global environmental indicators, built from NASA and partner datasets. Forecasts are statistical extrapolations, not official NASA products.</p>
+      </div>
+      <div>
+        <h4>Data sources</h4>
+        <ul>
+          <li><a href="https://data.giss.nasa.gov/gistemp/" target="_blank" rel="noopener">NASA GISS · GISTEMP v4</a></li>
+          <li><a href="https://sealevel.nasa.gov/" target="_blank" rel="noopener">NASA Sea Level Change Portal</a></li>
+          <li><a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener">NASA POWER · MERRA-2</a></li>
+          <li><a href="https://nsidc.org/data/g02135" target="_blank" rel="noopener">NSIDC Sea Ice Index</a></li>
+          <li><a href="https://gml.noaa.gov/ccgg/trends/" target="_blank" rel="noopener">NOAA GML · Mauna Loa CO₂</a></li>
+          <li><a href="https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/" target="_blank" rel="noopener">NOAA NCEI · ERSSTv5</a></li>
+        </ul>
+      </div>
+      <div class="credit-col">
+        <h4>Developer</h4>
+        <div class="credit"><b>Built by Emmanuel Punnoose</b><span>Reg. No. 23BEC1436</span></div>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span id="foot-run">Loading pipeline output…</span>
+      <span class="theme" role="group" aria-label="Colour theme">
+        <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+        <button type="button" data-theme-set="system" aria-pressed="true">System</button>
+        <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+<script>
+"use strict";
+/* ================================================================ state & data */
+const VIEWS = [["overview", "Overview"], ["indicators", "Indicators"], ["forecast", "Forecasts"], ["map", "Map"], ["insights", "Insights"], ["methods", "Data & methods"]];
+let D = null, BY = {}, ORDER = [];
+const charts = new Set();
+const state = { home: "gmst", pid: "gmst", range: "30", homeRange: "10", bt: null, lab: "co2", labModel: null, labH: 24, cmp: ["co2", "gmst", "gmsl", "arctic_ice"], layer: "anom" };
+
+async function loadData() {
+  const el = document.getElementById("dash-data");
+  if (el) return JSON.parse(el.textContent);
+  const base = (window.API_BASE || "").replace(/\/$/, "");
+  const urls = base ? [base + "/data/dashboard.json", "data/dashboard.json"] : ["data/dashboard.json"];
+  let last;
+  for (const u of urls) {
+    try { const r = await fetch(u, { cache: "no-cache" }); if (r.ok) return await r.json(); last = new Error(`${u} returned HTTP ${r.status}`); }
+    catch (e) { last = e; }
+  }
+  throw last;
+}
+
+/* ================================================================ helpers */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const cssv = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const ym = s => { if (!s) return "—"; const [y, m] = s.split("-"); return MON[+m - 1] + " " + y; };
+const T = s => s + "-01";
+const fmt = (v, d = 2, sign = false) => (v == null || !isFinite(v)) ? "—" : (sign && v > 0 ? "+" : v < 0 && Math.abs(v).toFixed(d) !== (0).toFixed(d) ? "−" : "") + Math.abs(v).toFixed(d);
+const dec = p => p.decimals ?? 2;
+const unit = p => p.unit === "unitless" ? "" : p.unit;
+const sigd = v => { const a = Math.abs(v); return a >= 10 ? 1 : a >= .1 ? 2 : a >= .01 ? 3 : 4; };
+const pct = v => (v * 100).toFixed(v > .995 || v < .005 ? 1 : 0) + "%";
+const latLab = v => v === 0 ? "0°" : Math.abs(v) + "°" + (v > 0 ? "N" : "S");
+const lonLab = v => v === 0 ? "0°" : Math.abs(v) + "°" + (v > 0 ? "E" : "W");
+const inSent = s => /^[A-Z][a-z]/.test(s) && !/^(Arctic|Antarctic)\b/.test(s) ? s[0].toLowerCase() + s.slice(1) : s;
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const per = s => s.replace(" to ", " – ").replace(/(\d{4})-(\d{2})/g, (_, y, mo) => MON[+mo - 1] + " " + y);
+
+function mkChart(el) { const c = echarts.init(el, null, { renderer: "canvas" }); charts.add(c); return c; }
+function freshChart(sel) { const el = $(sel); const o = echarts.getInstanceByDom(el); if (o) { charts.delete(o); o.dispose(); } return mkChart(el); }
+function clearChart(sel) { const o = echarts.getInstanceByDom($(sel)); if (o) { charts.delete(o); o.dispose(); } }
+function disposeAll() { charts.forEach(c => c.dispose()); charts.clear(); }
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach(c => c.resize()), 80); });
+
+function ma12(vals) { const out = [], q = []; let s = 0, n = 0;
+  for (const v of vals) { q.push(v); if (v != null) { s += v; n++; } if (q.length > 12) { const o = q.shift(); if (o != null) { s -= o; n--; } } out.push(q.length === 12 && n === 12 ? s / 12 : null); }
+  return out; }
+function basePer(p) { return p.analysis.baseline_1991_2020.period.split(" to "); }
+function baseYears(p) { const [a, b] = basePer(p); return a.slice(0, 4) + "–" + b.slice(0, 4); }
+function sameMonthBaseline(p, month) {
+  const [a, b] = basePer(p), ob = p.observations; let s = 0, n = 0;
+  for (let i = 0; i < ob.dates.length; i++) { const d = ob.dates[i]; if (d >= a && d <= b && d.slice(5) === month && ob.values[i] != null) { s += ob.values[i]; n++; } }
+  return n ? s / n : null;
+}
+function vsBaseline(p) { const b = sameMonthBaseline(p, p.latest.date.slice(5)); return b == null ? null : { diff: p.latest.value - b, base: b, pct: (p.latest.value - b) / Math.abs(b) }; }
+function concernTone(p) {
+  const P = p.ranking.prob_increase, dir = p.concern_direction;
+  if (dir === "none" || (P > .33 && P < .66)) return "neu";
+  const up = P >= .66, strong = P >= .9 || P <= .1;
+  if ((up && dir === "increase") || (!up && dir === "decrease")) return strong ? "crit" : "warn";
+  return "pos";
+}
+const outlookLabel = p => p.ranking.likelihood.replace(" to increase", " to rise").replace(" to decrease", " to fall");
+function lagInfo(p) { const n = p.dates.months_behind_reference; return n === 0 ? ["pos", "Includes Oct 2026"] : ["warn", `${n} month${n > 1 ? "s" : ""} behind Oct 2026`]; }
+function sparkSVG(p, w = 132, h = 34) {
+  const ob = p.observations, n = ob.values.length, i0 = Math.max(0, n - 120);
+  const raw = ob.values.slice(i0), sm = ma12(ob.values).slice(i0);
+  const all = raw.filter(v => v != null), lo = Math.min(...all), hi = Math.max(...all), pad = 3;
+  const X = i => pad + (w - 2 * pad) * i / (raw.length - 1), Y = v => h - pad - (h - 2 * pad) * (v - lo) / ((hi - lo) || 1);
+  const path = arr => { let d = "", pen = false; arr.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); pen = true; }); return d; };
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Last 10 years of ${esc(p.short)}">
+    <path d="${path(raw)}" fill="none" stroke="var(--ink-3)" stroke-width="1" opacity=".5" vector-effect="non-scaling-stroke"/>
+    <path d="${path(sm)}" fill="none" stroke="var(--ink)" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+    <circle cx="${X(raw.length - 1).toFixed(1)}" cy="${Y(raw[raw.length - 1]).toFixed(1)}" r="2.4" fill="var(--ink)"/></svg>`;
+}
+
+/* ================================================================ chart theme */
+function axisStyle() {
+  return {
+    axisLine: { lineStyle: { color: cssv("--rule") } }, axisTick: { show: false },
+    axisLabel: { color: cssv("--ink-3"), fontFamily: "IBM Plex Mono, ui-monospace, monospace", fontSize: 11 },
+    splitLine: { lineStyle: { color: cssv("--rule-soft"), type: [3, 3] } },
+    nameTextStyle: { color: cssv("--ink-3"), fontFamily: "IBM Plex Sans, sans-serif", fontSize: 11, align: "left" }
+  };
+}
+const timeAxis = (extra = {}) => ({ type: "time", ...axisStyle(), splitLine: { show: false }, axisLabel: { ...axisStyle().axisLabel, formatter: { year: "{yyyy}", month: "{MMM}", day: "" }, hideOverlap: true }, ...extra });
+function tipBox() { return { backgroundColor: cssv("--surface"), borderColor: cssv("--rule"), borderWidth: 1, padding: [8, 10], textStyle: { color: cssv("--ink"), fontSize: 12, fontFamily: "IBM Plex Sans, sans-serif" }, extraCssText: "box-shadow:0 4px 14px rgba(28,35,32,.10);border-radius:6px" }; }
+function dateOf(v) { const d = new Date(v); return MON[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
+const tipRow = (marker, name, val) => `<div style="display:flex;gap:16px;justify-content:space-between"><span>${marker}${esc(name)}</span><b style="font-family:IBM Plex Mono,monospace;font-weight:500">${val}</b></div>`;
+function seriesTip(p, bands) {
+  return {
+    trigger: "axis", ...tipBox(), axisPointer: { type: "line", lineStyle: { color: cssv("--ink-3"), type: "dashed" } },
+    formatter: ps => {
+      const rows = ps.filter(x => !x.seriesName.startsWith("_") && x.value && x.value[1] != null);
+      if (!rows.length) return "";
+      const key = new Date(rows[0].value[0]).toISOString().slice(0, 7);
+      let h = `<div style="font-weight:600;margin-bottom:4px">${dateOf(rows[0].value[0])}</div>`;
+      rows.forEach(x => { h += tipRow(x.marker, x.seriesName, `${fmt(x.value[1], dec(p))} ${esc(unit(p))}`); });
+      const b = bands && bands[key];
+      if (b) h += `<div style="color:${cssv("--ink-2")};margin-top:3px;font-size:11px">95% interval ${fmt(b[0], dec(p))} to ${fmt(b[1], dec(p))}</div>`;
+      return h;
+    }
+  };
+}
+function band(name, dates, lo, hi, color, stack) {
+  return [
+    { name: "_" + name + "lo", type: "line", data: dates.map((d, i) => [T(d), lo[i]]), stack, symbol: "none", lineStyle: { opacity: 0 }, silent: true, z: 1 },
+    { name: "_" + name, type: "line", data: dates.map((d, i) => [T(d), hi[i] - lo[i]]), stack, symbol: "none", lineStyle: { opacity: 0 }, areaStyle: { color }, silent: true, z: 1 }
+  ];
+}
+
+/* Observation + forecast chart shared by Overview, Indicators and Forecasts. */
+function drawSeries(el, p, opt) {
+  const { range = "30", model = p.forecast.selected, horizonEnd = null, annotate = true } = opt;
+  const c = mkChart(el), ob = p.observations, f = p.forecast, m = f.models[model];
+  const last = p.latest.date, from = range === "all" ? null : (+last.slice(0, 4) - +range) + last.slice(4);
+  const n = horizonEnd ? f.dates.indexOf(horizonEnd) + 1 : f.dates.length, fd = f.dates.slice(0, n);
+  const pick = (d, v) => { const out = []; for (let i = 0; i < d.length; i++) if (!from || d[i] >= from) out.push([T(d[i]), v[i]]); return out; };
+  const ink = cssv("--ink"), ink3 = cssv("--ink-3"), ocean = cssv("--ocean"), green = cssv("--green"), lab = { color: cssv("--ink-3"), fontSize: 10.5, fontFamily: "IBM Plex Sans, sans-serif" };
+  const bands = {}; fd.forEach((d, i) => bands[d] = [m.lo95[i], m.hi95[i]]);
+  // 30-year linear trend through the mean of the last 30 years (slope from the pipeline's HAC-OLS fit)
+  const nn = ob.dates.length, i0 = Math.max(0, nn - 360); let sx = 0, sy = 0, k = 0;
+  for (let i = i0; i < nn; i++) if (ob.values[i] != null) { sx += i; sy += ob.values[i]; k++; }
+  const mx = sx / k, my = sy / k, sl = p.analysis.trend_last_30y.per_decade / 120;
+  let ts = i0; if (from) { const k0 = ob.dates.indexOf(from); if (k0 > ts) ts = k0; }  // clip to the visible window so it never stretches the axis
+  const trend = [[T(ob.dates[ts]), my + sl * (ts - mx)], [T(ob.dates[nn - 1]), my + sl * (nn - 1 - mx)]];
+  // record month in the direction of concern, when it is inside the visible range
+  let rec = null;
+  if (annotate && p.concern_direction !== "none") {
+    const better = p.concern_direction === "decrease" ? (a, b) => a < b : (a, b) => a > b;
+    ob.values.forEach((v, i) => { if (v != null && (!rec || better(v, rec[1]))) rec = [ob.dates[i], v]; });
+    if (from && rec && rec[0] < from) rec = null;
+  }
+  const bp = p.analysis.baseline_1991_2020;
+  const vis = []; ob.dates.forEach((d, i) => { if ((!from || d >= from) && ob.values[i] != null) vis.push(ob.values[i]); });
+  const vlo = Math.min(...vis, ...m.lo95.slice(0, n)), vhi = Math.max(...vis, ...m.hi95.slice(0, n));
+  const showBase = bp.mean >= vlo && bp.mean <= vhi;
+  const winLabelPos = (p.latest.value - vlo) / ((vhi - vlo) || 1) > .55 ? "insideBottom" : "insideTop";
+  const t0 = from ? Date.parse(T(from)) : Date.parse(T(ob.dates[0])), t1 = Date.parse(T(horizonEnd || f.dates[f.dates.length - 1]));
+  const recLate = rec && (Date.parse(T(rec[0])) - t0) / (t1 - t0) > .62;
+  const series = [
+    { name: "Monthly observation", type: "line", data: pick(ob.dates, ob.values), symbol: "none", lineStyle: { width: 1, color: ink3, opacity: .75 }, itemStyle: { color: ink3 }, z: 2,
+      markPoint: rec ? { symbol: "circle", symbolSize: 7, itemStyle: { color: cssv("--surface"), borderColor: ink, borderWidth: 1.5 },
+        label: { show: true, position: recLate ? "left" : p.concern_direction === "decrease" ? "bottom" : "top", distance: 6, formatter: `${p.concern_direction === "decrease" ? "Lowest" : "Highest"} month · ${ym(rec[0])}`, color: cssv("--ink-2"), fontSize: 10.5, fontFamily: "IBM Plex Sans, sans-serif" },
+        data: [{ coord: [T(rec[0]), rec[1]] }] } : undefined },
+    { name: "12-month mean", type: "line", data: pick(ob.dates, ma12(ob.values)), symbol: "none", lineStyle: { width: 2.2, color: ink }, itemStyle: { color: ink }, z: 4 },
+    { name: "_trend", type: "line", data: trend, symbol: "none", lineStyle: { width: 1.6, type: [2, 3], color: green }, itemStyle: { color: green }, z: 3, silent: true },
+    ...band("b95", fd, m.lo95.slice(0, n), m.hi95.slice(0, n), cssv("--band-95"), "s95"),
+    ...band("b80", fd, m.lo80.slice(0, n), m.hi80.slice(0, n), cssv("--band-80"), "s80"),
+    { name: "Forecast", type: "line", data: [[T(last), p.latest.value], ...fd.map((d, i) => [T(d), m.mean[i]])], symbol: "none", lineStyle: { width: 2.2, type: [6, 4], color: ocean }, itemStyle: { color: ocean }, z: 5,
+      markLine: annotate ? { silent: true, symbol: "none", lineStyle: { color: ink3, type: [2, 3], width: 1 }, label: lab,
+        data: [...(showBase ? [{ yAxis: bp.mean, label: { ...lab, formatter: `${baseYears(p)} mean`, position: "insideStartTop" } }] : []),
+               { xAxis: T(last), label: { show: false }, lineStyle: { color: cssv("--rule"), type: "solid" } }] } : undefined,
+      markArea: annotate ? { silent: true, itemStyle: { color: cssv("--rule-soft"), opacity: .55 },
+        label: { ...lab, show: el.clientWidth >= 560, position: winLabelPos, formatter: "Forecast\nwindow", distance: 8, lineHeight: 13, align: "center" },
+        data: [[{ xAxis: T(D.meta.target_window[0]) }, { xAxis: T(horizonEnd || D.meta.target_window[1]) }]] } : undefined }
+  ];
+  c.setOption({
+    animation: true, animationDuration: 280, animationEasing: "cubicOut",
+    grid: { left: 8, right: 16, top: 30, bottom: 26, containLabel: true },
+    tooltip: seriesTip(p, bands),
+    xAxis: timeAxis({ min: from ? T(from) : undefined }),
+    yAxis: { type: "value", scale: true, ...axisStyle(), name: unit(p), nameGap: 12, axisLabel: { ...axisStyle().axisLabel, formatter: v => fmt(v, Math.min(dec(p), sigd(v))) } },
+    series
+  });
+  return c;
+}
+function legendHTML(p, model) {
+  return `<div class="legend" aria-hidden="true"><span><i class="obs"></i>Monthly observation</span><span><i></i>12-month mean</span><span><i class="trend"></i>30-year trend (${fmt(p.analysis.trend_last_30y.per_decade, sigd(p.analysis.trend_last_30y.per_decade), true)} ${esc(unit(p))}/decade)</span>
+  <span><i class="fc"></i>Forecast${model ? " · " + esc(p.modelling.models[model].label) : ""}</span><span><i class="band"></i>80% / 95% interval</span><span><i class="win"></i>Nov 2026 – Oct 2028</span></div>`;
+}
+const axisNote = p => ["co2", "gmsl", "arctic_ice", "precip", "aod"].includes(p.id) ? " The vertical axis is fitted to the data range and does not start at zero." : "";
+
+/* ================================================================ navigation */
+function buildNav() { const links = VIEWS.map(([id, l]) => `<a href="#${id}" data-v="${id}">${l}</a>`).join(""); $("#nav").innerHTML = links; $("#mnav").innerHTML = links; }
+function current() { const h = location.hash.slice(1); return VIEWS.some(v => v[0] === h) ? h : "overview"; }
+function route(keepScroll) {
+  const v = current(), y = window.scrollY;
+  $$("[data-v]").forEach(a => a.setAttribute("aria-current", a.dataset.v === v ? "page" : "false"));
+  $("#mobile-panel").hidden = true; $("#menu-btn").setAttribute("aria-expanded", "false");
+  disposeAll();
+  $("#main").innerHTML = `<div class="wrap"><div class="view">${VIEW[v]()}</div></div>`;
+  (AFTER[v] || (() => { }))();
+  window.scrollTo({ top: keepScroll ? y : 0 });
+}
+function goParam(id) { state.pid = id; state.bt = null; if (current() === "indicators") route(); else location.hash = "indicators"; }
+
+/* ================================================================ overview */
+function statusText() {
+  const vc = D.ranking.filter(x => x.prob_increase >= .99).map(x => BY[x.id].short);
+  const g = BY.gmst, a = BY.arctic_ice, parts = [];
+  const head = vc.length ? `${cap(vc.map(inSent).join(" and "))} ${vc.length > 1 ? "continue" : "continues"} to rise and ${vc.length > 1 ? "are" : "is"} virtually certain to be higher over the next two years.` : "Long-term warming continues across the temperature records.";
+  if (g) parts.push(`Global surface temperature in ${ym(g.latest.date)} was ${fmt(g.latest.value, 2, true)} °C above the 1951–1980 average.`);
+  if (a) { const b = vsBaseline(a); if (b) parts.push(`Arctic sea ice extent in ${ym(a.latest.date)} was ${fmt(Math.abs(b.pct) * 100, 0)}% ${b.diff < 0 ? "below" : "above"} its ${baseYears(a)} ${MONL[+a.latest.date.slice(5) - 1]} average.`); }
+  return { head, lede: parts.join(" ") };
+}
+function viewOverview() {
+  const st = statusText(), m = D.meta, obs = ORDER.map(p => p.dates.latest_observation).sort();
+  const rows = ORDER.map(p => {
+    const yy = p.analysis.year_over_year, b = vsBaseline(p), tr = p.analysis.trend_last_30y, d = dec(p);
+    const arrow = v => v > 0 ? "▲" : v < 0 ? "▼" : "■";
+    return `<tr data-home="${p.id}" aria-selected="${p.id === state.home}" tabindex="0">
+      <td class="c-name"><div class="nm">${esc(p.short)}</div><div class="src">${esc(p.source.agency.split(" (")[0].split(" - ")[0])}</div></td>
+      <td class="c-val"><div class="val">${fmt(p.latest.value, d)}<small>${esc(unit(p))}</small></div><div class="when">${ym(p.latest.date)}</div></td>
+      <td class="c-yoy r"><span class="delta"><i>${arrow(yy.change_vs_same_month)}</i>${fmt(yy.change_vs_same_month, d, true)}</span></td>
+      <td class="c-base r"><span class="delta">${b ? fmt(b.diff, d, true) : "—"}</span><div class="when">vs ${baseYears(p)}</div></td>
+      <td class="c-trend r"><span class="delta">${fmt(tr.per_decade, sigd(tr.per_decade), true)}</span><div class="when">per decade</div></td>
+      <td class="c-spark">${sparkSVG(p)}</td>
+      <td class="c-out"><span class="tag ${concernTone(p)}">${esc(outlookLabel(p))}</span></td></tr>`;
+  }).join("");
+  const kinds = ["increasing", "likely", "decreasing", "uncertain", "regional", "uncertainty"];
+  const labels = { likely: "Likely rise", increasing: "Projected rise", decreasing: "Projected lower", uncertain: "Uncertain", regional: "Regional", uncertainty: "Uncertainty" };
+  const findings = kinds.flatMap(k => D.insights.filter(i => i.kind === k).slice(0, 1));
+  const p = BY[state.home];
+  return `
+  <section class="status" aria-labelledby="h-status">
+    <div><p class="eyebrow">Status of Earth · reference month ${ym(m.reference_month)}</p>
+      <h1 id="h-status" style="margin-top:12px">${esc(st.head)}</h1><p class="lede">${esc(st.lede)}</p></div>
+    <dl class="facts" aria-label="Data status">
+      <div><dt>Forecast window</dt><dd>${ym(m.target_window[0])} – ${ym(m.target_window[1])}</dd></div>
+      <div><dt>Latest observations</dt><dd>${ym(obs[0])} – ${ym(obs[obs.length - 1])}</dd></div>
+      <div><dt>Data retrieved</dt><dd>${retrieved().slice(0, 10)}</dd></div>
+      <div><dt>Models run</dt><dd>${m.generated_utc.slice(0, 16).replace("T", " ")} UTC</dd></div>
+    </dl>
+  </section>
+
+  <section class="sec" aria-labelledby="h-ind">
+    <div class="sec-head"><div><h2 id="h-ind">Global indicators</h2><p>Latest released value of each indicator. Select a row to plot it below.</p></div>
+      <span class="xs faint">Changes in each indicator's own unit</span></div>
+    <div class="tbl"><table class="ind"><thead><tr><th>Indicator</th><th>Latest</th><th class="r">vs year earlier</th><th class="r">vs baseline month</th><th class="r">30-year trend</th><th>Last 10 years</th><th>Outlook to Oct 2028</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="caption">“vs baseline month” compares the latest month with the average of the same calendar month over 1991–2020, or from the start of the record where it begins later. Outlook colour: red or amber where the projected direction is the direction of concern for that indicator (rising temperatures, CO₂, sea level and aerosols; falling sea ice), green where it is the opposite, grey where the direction is uncertain or neither direction is a concern.</p>
+  </section>
+
+  <section class="sec" aria-labelledby="h-trend">
+    <div class="sec-head"><div><h2 id="h-trend">Trend and outlook</h2><p>${esc(p.name)}: observations and the selected model's forecast to ${ym(m.target_window[1])}.</p></div>
+      <button class="btn-link" type="button" data-goto="${p.id}">Full analysis of ${esc(p.short)} →</button></div>
+    <div class="surface">
+      <div class="tabs" role="tablist" aria-label="Indicator">${ORDER.map(q => `<button role="tab" type="button" data-home="${q.id}" aria-selected="${q.id === state.home}">${esc(q.short)}</button>`).join("")}</div>
+      <div class="chart-top">${legendHTML(p, p.forecast.selected)}<div class="seg" role="group" aria-label="Time range">${rangeBtns(state.homeRange, "hr")}</div></div>
+      <div id="c-home" class="chart h-lg" role="img" aria-label="${esc(p.short)} observations and forecast"></div>
+      ${statRow(p)}
+      <p class="caption">Shaded: the forecast window and the 80% and 95% prediction intervals, which come from the model's own out-of-sample errors.${axisNote(p)}</p>
+    </div>
+  </section>
+
+  <section class="cols" aria-label="Findings">
+    <div class="sec"><div class="sec-head"><div><h2>What the data show</h2><p>Statements generated from the computed results.</p></div><a href="#insights" class="small">All insights →</a></div>
+      <div class="findings">${findings.map(f => `<div class="finding"><span class="eyebrow">${labels[f.kind]}</span><div><h3>${esc(f.title)}</h3><p>${esc(f.text)}</p></div></div>`).join("")}</div></div>
+    <div class="sec"><div class="sec-head"><div><h2>Two-year outlook</h2><p>Probability that the Nov 2027 – Oct 2028 average exceeds the latest 12 months.</p></div></div>
+      <div class="outlook">${D.ranking.map((r, i) => { const q = BY[r.id]; return `<button type="button" data-goto="${r.id}"><span class="rk">${i + 1}</span><span><b style="font-weight:500">${esc(q.short)}</b><br><span class="xs faint">${fmt(r.projected_change, dec(q), true)} ${esc(unit(q))}</span></span><span class="meter" title="${pct(r.prob_increase)}"><b style="width:${(r.prob_increase * 100).toFixed(1)}%"></b><s></s></span><span class="pc">${pct(r.prob_increase)}</span></button>`; }).join("")}</div>
+      <p class="caption">The tick marks 50%. Calibrated wording: likely ≥ 66%, very likely ≥ 90%, virtually certain ≥ 99%. Change shown is the projected difference in annual means.</p></div>
+  </section>`;
+}
+function rangeBtns(cur, key) { return [["10", "10 yr"], ["30", "30 yr"], ["all", "Full record"]].map(([v, l]) => `<button type="button" data-${key}="${v}" aria-pressed="${cur === v}">${l}</button>`).join(""); }
+function statRow(p) {
+  const d = dec(p), tr = p.analysis.trend_last_30y, h = p.horizons["24"], md = p.modelling, met = md.metrics.by_model[md.selected_model];
+  return `<div class="stat-row">
+    <div><span class="eyebrow">Latest · ${ym(p.latest.date)}</span><span class="v">${fmt(p.latest.value, d)}<small>${esc(unit(p))}</small></span><span class="s">${esc(lagInfo(p)[1])}</span></div>
+    <div><span class="eyebrow">Rate, last 30 years</span><span class="v">${fmt(tr.per_decade, sigd(tr.per_decade), true)}<small>${esc(unit(p))} / decade</small></span><span class="s">95% CI ${fmt(tr.ci95_per_decade[0], sigd(tr.per_decade), true)} to ${fmt(tr.ci95_per_decade[1], sigd(tr.per_decade), true)}</span></div>
+    <div><span class="eyebrow">Projected · ${ym(h.date)}</span><span class="v">${fmt(h.mean, d)}<small>${esc(unit(p))}</small></span><span class="s">95% range ${fmt(h.lo95, d)} – ${fmt(h.hi95, d)}</span></div>
+    <div><span class="eyebrow">Model</span><span class="v" style="font-family:var(--font-body);font-size:var(--t-base);font-weight:500;line-height:1.35">${esc(md.models[md.selected_model].label)}</span><span class="s">${fmt(met.skill_vs_best_baseline * 100, 0)}% lower error than the best simple baseline</span></div>
+  </div>`;
+}
+function afterOverview() {
+  drawSeries($("#c-home"), BY[state.home], { range: state.homeRange });
+  $$("[data-home]").forEach(el => {
+    const sel = () => { if (state.home === el.dataset.home) return; state.home = el.dataset.home; route(true); };
+    el.addEventListener("click", sel); el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sel(); } });
+  });
+  $$("[data-hr]").forEach(b => b.onclick = () => { state.homeRange = b.dataset.hr; $$("[data-hr]").forEach(x => x.setAttribute("aria-pressed", x === b)); clearChart("#c-home"); drawSeries($("#c-home"), BY[state.home], { range: state.homeRange }); });
+}
+function retrieved() { const ts = Object.values(D.meta.manifest.files || {}).map(f => f.retrieved_utc).filter(Boolean).sort(); return ts.length ? ts[ts.length - 1] : D.meta.generated_utc; }
+
+/* ================================================================ indicator page */
+function viewIndicators() {
+  const p = BY[state.pid], d = dec(p), an = p.analysis, r = p.ranking, md = p.modelling, src = p.source;
+  state.bt = state.bt && p.backtest.models[state.bt] ? state.bt : md.selected_model;
+  const b = vsBaseline(p), [lt, ll] = lagInfo(p), tr = an.trend_last_30y, yy = an.year_over_year, sd = v => sigd(v) + 1;
+  const metRows = Object.entries(md.metrics.by_model).filter(([, v]) => !v.failed).sort((a, c) => a[1].rmse - c[1].rmse).map(([n, v]) =>
+    `<tr class="${n === md.selected_model ? "sel" : ""}"><td>${esc(md.models[n].label)}${n === md.selected_model ? ' <span class="tag info">Selected</span>' : ""}${n === md.metrics.best_baseline ? ' <span class="tag neu">Best baseline</span>' : ""}<div class="xs faint">${esc(md.models[n].family)}</div></td>
+     <td class="r num">${fmt(v.rmse, d + 1)}</td><td class="r num">${fmt(v.mae, d + 1)}</td><td class="r num">${v.mape != null ? fmt(v.mape, 2) + "%" : "—"}</td><td class="r num">${fmt(v.mase, 2)}</td><td class="r num">${fmt(v.bias, d + 1, true)}</td><td class="r num">${fmt(v.skill_vs_best_baseline * 100, 0, true)}%</td></tr>`).join("");
+  const anoms = an.anomalies_last_10y.slice(-6), res = md.residuals, cov = md.interval_coverage_check, files = Object.entries(src.files || {});
+  const rank = yy.record_rank_of_latest_month;
+  return `<div class="param-layout">
+    <nav class="subnav" aria-label="Indicators"><span class="eyebrow">Indicators</span>${ORDER.map(q => `<button type="button" data-pid="${q.id}" aria-current="${q.id === p.id}"><b>${esc(q.short)}</b><span>${fmt(q.latest.value, dec(q))} ${esc(unit(q))} · ${ym(q.latest.date)}</span></button>`).join("")}</nav>
+    <div style="display:grid;gap:44px;min-width:0">
+      <div class="p-mobile-sel field"><label for="p-sel">Indicator</label><select id="p-sel">${ORDER.map(q => `<option value="${q.id}" ${q.id === p.id ? "selected" : ""}>${esc(q.short)}</option>`).join("")}</select></div>
+      <header class="p-head">
+        <p class="eyebrow">Indicator · ${esc(p.tags.join(" · "))}</p>
+        <h1>${esc(p.name)}</h1>
+        <p class="desc">${esc(p.description)}</p>
+        <div class="meta-line"><span><b>${esc(src.dataset)}</b></span><span>${esc(src.agency)}</span><span>Last updated <b class="num">${esc((p.dates.retrieved_utc || "").slice(0, 10))}</b></span><span class="tag ${lt}">${esc(ll)}</span></div>
+      </header>
+
+      <div class="figures">
+        <div><span class="eyebrow">Latest · ${ym(p.latest.date)}</span><span class="v">${fmt(p.latest.value, d)}<small>${esc(unit(p))}</small></span><span class="s">${rank === 1 ? "Highest" : rank === yy.years_with_this_month ? "Lowest" : "#" + rank + " highest"} ${MONL[+p.latest.date.slice(5) - 1]} of ${yy.years_with_this_month} on record</span></div>
+        <div><span class="eyebrow">vs ${baseYears(p)} same month</span><span class="v">${b ? fmt(b.diff, d, true) : "—"}<small>${esc(unit(p))}</small></span><span class="s">${b ? `Baseline ${fmt(b.base, d)} ${esc(unit(p))}` : ""}${b && ["co2", "arctic_ice", "precip", "aod"].includes(p.id) ? ` · ${fmt(b.pct * 100, 0, true)}%` : ""}</span></div>
+        <div><span class="eyebrow">Trend, last 30 years</span><span class="v">${fmt(tr.per_decade, sigd(tr.per_decade), true)}<small>${esc(unit(p))} / decade</small></span><span class="s">${tr.p_value < .05 ? "Statistically significant" : "Not statistically significant"} (p ${tr.p_value < .001 ? "< 0.001" : "= " + fmt(tr.p_value, 3)})</span></div>
+        <div><span class="eyebrow">Outlook to Oct 2028</span><span class="v">${fmt(r.projected_change, d, true)}<small>${esc(unit(p))}</small></span><span class="s"><span class="tag ${concernTone(p)}">${esc(outlookLabel(p))}</span></span></div>
+      </div>
+
+      <section class="p-section" aria-labelledby="h-obs">
+        <div class="sec-head"><div><h2 id="h-obs">Observations and two-year forecast</h2><p>${esc(md.models[md.selected_model].label)}, selected for the lowest out-of-sample error.</p></div>
+          <div class="seg" role="group" aria-label="Time range">${rangeBtns(state.range, "pr")}</div></div>
+        <div class="surface">${legendHTML(p, md.selected_model)}<div id="c-main" class="chart h-lg" role="img" aria-label="${esc(p.short)} time series with forecast"></div>
+          <p class="caption">The forecast starts after the latest observation (${ym(p.latest.date)}); the shaded column marks Nov 2026 – Oct 2028.${axisNote(p)}</p></div>
+      </section>
+
+      <div class="cols">
+        <section class="p-section" aria-labelledby="h-hist"><div class="sec-head"><div><h2 id="h-hist">Historical trend</h2></div></div>
+          <dl class="kv">
+            <dt>Full record</dt><dd class="num">${fmt(an.trend_full_record.per_year, sd(an.trend_full_record.per_year), true)} ${esc(unit(p))}/yr <span class="faint">${esc(per(an.trend_full_record.period))}</span></dd>
+            <dt>Last 30 years</dt><dd class="num">${fmt(tr.per_year, sd(tr.per_year), true)} ${esc(unit(p))}/yr <span class="faint">95% CI ${fmt(tr.ci95_per_decade[0] / 10, sd(tr.per_year), true)} to ${fmt(tr.ci95_per_decade[1] / 10, sd(tr.per_year), true)}</span></dd>
+            <dt>Recent vs earlier</dt><dd class="num">${fmt(an.acceleration.recent.per_decade / 10, sd(an.acceleration.recent.per_decade / 10), true)} vs ${fmt(an.acceleration.earlier.per_decade / 10, sd(an.acceleration.earlier.per_decade / 10), true)} ${esc(unit(p))}/yr <span class="faint">latest 15 years vs previous 15</span></dd>
+            ${an.mann_kendall_last_30y.kendall_tau != null ? `<dt>Mann–Kendall</dt><dd class="num">τ = ${fmt(an.mann_kendall_last_30y.kendall_tau, 2)}, p ${an.mann_kendall_last_30y.p_value < .001 ? "< 0.001" : "= " + fmt(an.mann_kendall_last_30y.p_value, 3)} <span class="faint">Sen slope ${fmt(an.mann_kendall_last_30y.sen_slope_per_year, sd(an.mann_kendall_last_30y.sen_slope_per_year), true)}/yr</span></dd>` : ""}
+            <dt>Year over year</dt><dd class="num">${fmt(yy.change_vs_same_month, d, true)} <span class="faint">${ym(yy.latest_month)} vs a year earlier</span> · 12-month mean ${fmt(yy.change_12m_mean, d, true)}</dd>
+            <dt>Assessment</dt><dd>${esc(an.classification.replace(/^./, s => s.toUpperCase()))}</dd>
+          </dl></section>
+        <section class="p-section" aria-labelledby="h-fc"><div class="sec-head"><div><h2 id="h-fc">Two-year forecast</h2></div></div>
+          <div class="tbl"><table class="t"><thead><tr><th>Horizon</th><th class="r">Central</th><th class="r">80% interval</th><th class="r">95% interval</th></tr></thead><tbody>
+          ${Object.entries(p.horizons).map(([k, h]) => `<tr><td style="white-space:nowrap">+${k} mo <span class="faint xs">${ym(h.date)}</span></td><td class="r num">${fmt(h.mean, d)}</td><td class="r num">${fmt(h.lo80, d)} – ${fmt(h.hi80, d)}</td><td class="r num">${fmt(h.lo95, d)} – ${fmt(h.hi95, d)}</td></tr>`).join("")}</tbody></table></div>
+          <p class="small muted">Average over Nov 2027 – Oct 2028: <b class="num">${fmt(r.forecast_mean_nov2027_oct2028, d)}</b> ${esc(unit(p))}, against <b class="num">${fmt(r.last12_obs_mean, d)}</b> for ${esc(per(r.last12_obs_period))}. Change ${fmt(r.projected_change, d, true)} (95% interval ${fmt(r.projected_change_ci95[0], d, true)} to ${fmt(r.projected_change_ci95[1], d, true)}); probability of an increase ${pct(r.prob_increase)}. Horizons are counted from October 2026.</p></section>
+      </div>
+
+      <section class="p-section" aria-labelledby="h-model">
+        <div class="sec-head"><div><h2 id="h-model">Model performance</h2><p>${md.validation.n_origins} rolling forecast origins from ${ym(md.validation.origins[0])} to ${ym(md.validation.origins[md.validation.origins.length - 1])}. At each origin every model is re-trained on earlier data and scored on the next ${md.horizon_months} months.</p></div></div>
+        <div class="cols">
+          <div class="surface"><div class="chart-top"><h3>Actual versus predicted</h3><select id="bt-model" aria-label="Model">${Object.keys(p.backtest.models).map(n => `<option value="${n}" ${n === state.bt ? "selected" : ""}>${esc(md.models[n].label)}</option>`).join("")}</select></div>
+            <div id="c-bt" class="chart h-sm"></div><p class="caption" id="bt-cap"></p></div>
+          <div class="surface"><div class="chart-top"><h3>Error by forecast horizon</h3><span class="xs faint">RMSE${unit(p) ? ", " + esc(unit(p)) : ""}</span></div><div id="c-err" class="chart h-sm"></div>
+            <p class="caption">Dashed line: best simple baseline. Lower is better.</p></div>
+        </div>
+        <div class="tbl"><table class="t"><thead><tr><th>Model</th><th class="r">RMSE</th><th class="r">MAE</th><th class="r">MAPE</th><th class="r">MASE</th><th class="r">Bias</th><th class="r">vs baseline</th></tr></thead><tbody>${metRows}</tbody></table></div>
+        <ul class="notes">
+          ${md.models.sarima?.spec ? `<li>ARIMA order chosen by AIC: <span class="mono">${esc(md.models.sarima.spec)}</span>.</li>` : ""}
+          <li>Interval calibration: the 80% and 95% bands contained ${pct(cov.empirical_80)} and ${pct(cov.empirical_95)} of validation errors.</li>
+          ${res.n >= 12 ? `<li>One-step walk-forward residuals, last ${res.n} months: ${esc(res.interpretation)}</li>` : ""}
+          <li>MASE below 1 means the model beats the ${md.seasonal_models ? "seasonal-naive" : "naive"} forecast. MAPE is reported only for strictly positive physical quantities.</li>
+        </ul>
+      </section>
+
+      <section class="p-section" aria-labelledby="h-stl">
+        <div class="sec-head"><div><h2 id="h-stl">Seasonal structure and anomalies</h2><p>Robust STL decomposition of the last 30 years. Seasonal strength ${fmt(an.seasonal_strength, 2)} on a 0–1 scale.</p></div></div>
+        <div class="cols-wide"><div class="surface"><div id="c-stl" class="chart"></div></div>
+          <div><h3>Unusual months, last 10 years</h3><ul class="notes" style="margin-top:10px">${anoms.length ? anoms.map(a => `<li><b class="num">${ym(a.date)}</b> · observed ${fmt(a.observed, d)} ${esc(unit(p))}, ${fmt(a.robust_z, 1, true)} robust SD from the seasonal fit</li>`).join("") : "<li>No month departed more than ±3 robust standard deviations from the seasonal fit.</li>"}</ul>
+            <p class="caption">Red bars in the remainder panel mark these months.</p></div></div>
+      </section>
+
+      <div class="cols">
+        <section class="p-section" aria-labelledby="h-lim"><div class="sec-head"><div><h2 id="h-lim">Limitations</h2></div></div>
+          <ul class="notes">${(p.limitations || []).map(l => `<li>${esc(l)}</li>`).join("")}<li>Forecasts extrapolate past behaviour statistically; they are not physical climate projections.</li></ul></section>
+        <section class="p-section" aria-labelledby="h-src"><div class="sec-head"><div><h2 id="h-src">Dataset and attribution</h2></div><a href="${esc(src.landing_page)}" target="_blank" rel="noopener" class="small">Source ↗</a></div>
+          <dl class="kv">
+            <dt>Resolution</dt><dd>${esc(src.temporal_resolution)}</dd><dt>Coverage</dt><dd>${esc(src.spatial_coverage)}</dd><dt>Baseline</dt><dd>${esc(src.baseline)}</dd>
+            <dt>Observations</dt><dd class="num">${ym(p.dates.first_observation)} – ${ym(p.dates.latest_observation)}</dd>
+            <dt>Published</dt><dd>${esc(p.dates.dataset_published || "Not stated by the source")}</dd>
+            <dt>Retrieved</dt><dd class="num">${esc((p.dates.retrieved_utc || "").replace("T", " ").replace("+00:00", "").replace("Z", ""))} UTC</dd>
+            <dt>Forecast issued</dt><dd class="num">${esc(p.dates.forecast_issued)}</dd>
+            <dt>Release delay</dt><dd>${esc(src.typical_delay)}</dd>
+            ${p.quality.filled_for_modelling.length ? `<dt>Estimated values</dt><dd>${p.quality.filled_for_modelling.map(ym).join(", ")} interpolated for model fitting only</dd>` : ""}
+            ${p.quality.partial_months?.length ? `<dt>Partial month</dt><dd>${p.quality.partial_months.map(ym).join(", ")}: ${p.quality.samples_in_last_month} samples (typical ${p.quality.samples_per_month_median})</dd>` : ""}
+            <dt>Citation</dt><dd>${esc(src.citation)}</dd>
+            ${files.map(([f, mm]) => `<dt>File</dt><dd><span class="mono xs">${esc(f)}</span><br><span class="xs faint">SHA-256 ${esc((mm.sha256 || "").slice(0, 16))}…</span></dd>`).join("")}
+            ${src.notes ? `<dt>Notes</dt><dd class="muted">${esc(src.notes)}</dd>` : ""}
+          </dl></section>
+      </div>
+    </div></div>`;
+}
+function afterIndicators() {
+  const p = BY[state.pid];
+  $$("[data-pid]").forEach(b => b.onclick = () => goParam(b.dataset.pid));
+  $("#p-sel").onchange = e => goParam(e.target.value);
+  $$("[data-pr]").forEach(b => b.onclick = () => { state.range = b.dataset.pr; $$("[data-pr]").forEach(x => x.setAttribute("aria-pressed", x === b)); clearChart("#c-main"); drawSeries($("#c-main"), p, { range: state.range }); });
+  $("#bt-model").onchange = e => { state.bt = e.target.value; drawBacktest(p); };
+  drawSeries($("#c-main"), p, { range: state.range });
+  drawBacktest(p); drawErr(p); drawSTL(p);
+}
+function drawBacktest(p) {
+  const c = freshChart("#c-bt"), b = p.backtest, m = b.models[state.bt], ob = p.observations;
+  const i0 = Math.max(0, ob.dates.indexOf(b.dates[0]) - 24), end = b.dates[b.dates.length - 1];
+  const obs = []; for (let i = i0; i < ob.dates.length && ob.dates[i] <= end; i++) obs.push([T(ob.dates[i]), ob.values[i]]);
+  c.setOption({
+    animation: false, grid: { left: 8, right: 12, top: 22, bottom: 22, containLabel: true }, tooltip: seriesTip(p),
+    xAxis: timeAxis(), yAxis: { type: "value", scale: true, ...axisStyle(), name: unit(p) },
+    series: [
+      { name: "Observed", type: "line", data: obs, symbol: "none", lineStyle: { color: cssv("--ink"), width: 1.6 }, itemStyle: { color: cssv("--ink") } },
+      { name: "Predicted", type: "line", data: b.dates.map((d, i) => [T(d), m.predicted[i]]), symbol: "none", lineStyle: { color: cssv("--ocean"), type: [6, 4], width: 2 }, itemStyle: { color: cssv("--ocean") },
+        markLine: { silent: true, symbol: "none", label: { formatter: "Training ends", color: cssv("--ink-3"), fontSize: 10.5, position: "insideEndTop" }, lineStyle: { color: cssv("--rule"), type: "solid" }, data: [{ xAxis: T(b.dates[0]) }] } }
+    ]
+  });
+  $("#bt-cap").textContent = `${p.modelling.models[state.bt].label}, trained on data up to ${ym(b.models[state.bt].origin)} and forecasting ${b.dates.length} months ahead, compared with what was then observed.`;
+}
+function drawErr(p) {
+  const c = mkChart($("#c-err")), md = p.modelling;
+  const names = Object.entries(md.metrics.by_model).filter(([, v]) => !v.failed).sort((a, b) => a[1].rmse - b[1].rmse).slice(0, 4).map(x => x[0]);
+  if (!names.includes(md.metrics.best_baseline)) names.push(md.metrics.best_baseline);
+  const pal = [cssv("--ocean"), cssv("--green"), cssv("--ink-2"), cssv("--warn"), cssv("--ink-3")];
+  c.setOption({
+    animation: false, grid: { left: 8, right: 12, top: 44, bottom: 26, containLabel: true },
+    tooltip: { trigger: "axis", ...tipBox(), formatter: ps => `<div style="font-weight:600;margin-bottom:4px">${ps[0].axisValue} months ahead</div>` + ps.map(x => tipRow(x.marker, x.seriesName, fmt(x.value, dec(p) + 1))).join("") },
+    legend: { top: 0, left: 0, type: "scroll", itemWidth: 16, itemHeight: 2, textStyle: { color: cssv("--ink-2"), fontSize: 11 } },
+    xAxis: { type: "category", data: md.metrics.by_model[names[0]].rmse_by_horizon.map((_, i) => i + 1), ...axisStyle(), splitLine: { show: false }, name: "months ahead", nameLocation: "middle", nameGap: 26, axisLabel: { ...axisStyle().axisLabel, interval: 5 } },
+    yAxis: { type: "value", ...axisStyle(), min: 0 },
+    series: names.map((n, i) => ({ name: md.models[n].label, type: "line", symbol: "none", data: md.metrics.by_model[n].rmse_by_horizon,
+      lineStyle: { width: n === md.selected_model ? 2.4 : 1.3, type: n === md.metrics.best_baseline ? [5, 4] : "solid", color: pal[i % pal.length] }, itemStyle: { color: pal[i % pal.length] } }))
+  });
+}
+function drawSTL(p) {
+  const s = p.analysis.stl; if (!s) return;
+  const c = mkChart($("#c-stl")), dts = s.dates.map(T), ax = axisStyle();
+  const g = (top, h) => ({ left: 64, right: 12, top: top + "%", height: h + "%" });
+  const xa = i => ({ type: "time", gridIndex: i, ...ax, splitLine: { show: false }, axisLabel: { ...ax.axisLabel, show: i === 2, formatter: "{yyyy}" } });
+  const ya = (i, nm) => ({ type: "value", gridIndex: i, scale: true, name: nm, nameLocation: "middle", nameGap: 50, ...ax, nameTextStyle: { color: cssv("--ink-2"), fontSize: 11 }, splitNumber: 2 });
+  c.setOption({
+    animation: false, tooltip: seriesTip(p), axisPointer: { link: [{ xAxisIndex: "all" }] },
+    grid: [g(3, 27), g(37, 22), g(66, 25)], xAxis: [xa(0), xa(1), xa(2)], yAxis: [ya(0, "Trend"), ya(1, "Seasonal"), ya(2, "Remainder")],
+    series: [
+      { name: "Trend", type: "line", xAxisIndex: 0, yAxisIndex: 0, symbol: "none", data: dts.map((d, i) => [d, s.trend[i]]), lineStyle: { color: cssv("--ink"), width: 1.8 }, itemStyle: { color: cssv("--ink") } },
+      { name: "Seasonal", type: "line", xAxisIndex: 1, yAxisIndex: 1, symbol: "none", data: dts.map((d, i) => [d, s.seasonal[i]]), lineStyle: { color: cssv("--green"), width: 1 }, itemStyle: { color: cssv("--green") } },
+      { name: "Remainder", type: "bar", xAxisIndex: 2, yAxisIndex: 2, barWidth: 1, data: dts.map((d, i) => ({ value: [d, s.resid[i]], itemStyle: { color: Math.abs(s.robust_z[i]) >= 3 ? cssv("--crit") : cssv("--ink-3") } })) }
+    ]
+  });
+}
+
+/* ================================================================ forecasts */
+function viewForecast() {
+  const p = BY[state.lab], md = p.modelling;
+  state.labModel = state.labModel && p.forecast.models[state.labModel] ? state.labModel : md.selected_model;
+  const met = md.metrics.by_model[state.labModel], d = dec(p), H = D.meta.report_horizons;
+  const hEnd = H[String(state.labH)], f = p.forecast.models[state.labModel], i = p.forecast.dates.indexOf(hEnd);
+  const mm = hEnd.slice(5); let same = null;
+  for (let k = p.observations.dates.length - 1; k >= 0; k--) if (p.observations.dates[k].slice(5) === mm && p.observations.values[k] != null) { same = [p.observations.dates[k], p.observations.values[k]]; break; }
+  return `
+  <header class="p-head"><p class="eyebrow">Forecasts · Nov 2026 – Oct 2028</p><h1>Forecast explorer</h1>
+    <p class="desc">Choose an indicator, any validated model and a horizon. Each interval is scaled by that model's own out-of-sample error, so wider bands mean the model has been less accurate in past tests. Forecasts describe likely ranges, not guaranteed outcomes.</p></header>
+  <div class="toolbar" role="group" aria-label="Forecast settings">
+    <div class="field"><label for="lab-p">Indicator</label><select id="lab-p">${ORDER.map(q => `<option value="${q.id}" ${q.id === p.id ? "selected" : ""}>${esc(q.short)}</option>`).join("")}</select></div>
+    <div class="field"><label for="lab-m">Model</label><select id="lab-m">${Object.keys(p.forecast.models).map(n => `<option value="${n}" ${n === state.labModel ? "selected" : ""}>${esc(md.models[n].label)}${n === md.selected_model ? " (selected)" : ""}</option>`).join("")}</select></div>
+    <div class="field"><span class="lab">Horizon</span><div class="seg" role="group" aria-label="Horizon">${[6, 12, 18, 24].map(h => `<button type="button" data-h="${h}" aria-pressed="${state.labH === h}">${h} months</button>`).join("")}</div></div>
+  </div>
+  <div class="cols-wide">
+    <section class="surface" aria-label="Forecast chart"><div class="chart-top"><h2>${esc(p.short)} to ${ym(hEnd)}</h2></div>${legendHTML(p, state.labModel)}
+      <div id="c-lab" class="chart h-lg"></div><p class="caption">${esc(md.models[state.labModel].description)}${axisNote(p)}</p></section>
+    <aside style="display:grid;gap:20px;align-content:start">
+      <div class="figures" style="grid-template-columns:minmax(0,1fr)"><div><span class="eyebrow">${ym(hEnd)} · ${state.labH} months after Oct 2026</span><span class="v">${fmt(f.mean[i], d)}<small>${esc(unit(p))}</small></span>
+        <span class="s">80% interval ${fmt(f.lo80[i], d)} – ${fmt(f.hi80[i], d)}<br>95% interval ${fmt(f.lo95[i], d)} – ${fmt(f.hi95[i], d)}</span></div></div>
+      <dl class="kv">
+        <dt>Latest observed</dt><dd class="num">${fmt(p.latest.value, d)} ${esc(unit(p))} <span class="faint">${ym(p.latest.date)}</span></dd>
+        <dt>Same month, latest year</dt><dd class="num">${same ? fmt(same[1], d) + " " + esc(unit(p)) + ` <span class="faint">${ym(same[0])}</span>` : "—"}</dd>
+        <dt>Projected change</dt><dd class="num">${same ? fmt(f.mean[i] - same[1], d, true) + " " + esc(unit(p)) : "—"} <span class="faint">vs that month</span></dd>
+        <dt>Validation RMSE</dt><dd class="num">${fmt(met.rmse, d + 1)} <span class="faint">all horizons</span></dd>
+        <dt>RMSE at ${i + 1} months</dt><dd class="num">${fmt(met.rmse_by_horizon[Math.min(i, met.rmse_by_horizon.length - 1)], d + 1)}</dd>
+        <dt>vs best baseline</dt><dd class="num">${fmt(met.skill_vs_best_baseline * 100, 0, true)}% <span class="faint">error reduction</span></dd>
+      </dl>
+      ${state.labModel !== md.selected_model ? `<p class="note">This is not the best-validated model for ${esc(p.short)}; ${esc(md.models[md.selected_model].label)} has the lowest out-of-sample error.</p>` : ""}
+    </aside>
+  </div>
+
+  <section class="sec" aria-labelledby="h-all">
+    <div class="sec-head"><div><h2 id="h-all">All indicators at the report horizons</h2><p>Selected model for each indicator; central estimate with its 95% interval. Select a row to explore it above.</p></div></div>
+    <div class="tbl"><table class="t"><thead><tr><th>Indicator</th><th class="r">Latest</th>${Object.entries(H).map(([k, v]) => `<th class="r">+${k} mo · ${ym(v)}</th>`).join("")}</tr></thead>
+    <tbody>${ORDER.map(q => { const dd = dec(q); return `<tr class="go${q.id === p.id ? " sel" : ""}" data-lab="${q.id}" tabindex="0"><td><b style="font-weight:500">${esc(q.short)}</b> <span class="xs faint">${esc(unit(q))}</span></td><td class="r num">${fmt(q.latest.value, dd)}<div class="xs faint">${ym(q.latest.date)}</div></td>
+      ${Object.keys(H).map(k => { const h = q.horizons[k]; return `<td class="r num">${fmt(h.mean, dd)}<div class="xs faint">${fmt(h.lo95, dd)} – ${fmt(h.hi95, dd)}</div></td>`; }).join("")}</tr>`; }).join("")}</tbody></table></div>
+    <p class="caption">Seasonal indicators (CO₂, sea ice, sea level, aerosols) include their annual cycle, so April and October values differ for seasonal reasons. Compare like months, or use the 12-month means on the Overview.</p>
+  </section>
+
+  <section class="sec" aria-labelledby="h-cmp">
+    <div class="sec-head"><div><h2 id="h-cmp">Compare indicators</h2><p>12-month running means in standard deviations of year-to-year variability around each indicator's baseline mean, so different units share one axis.</p></div></div>
+    <div class="surface"><div class="chips" role="group" aria-label="Indicators to compare">${ORDER.map((q, k) => `<button type="button" class="chip" data-cmp="${q.id}" aria-pressed="${state.cmp.includes(q.id)}"><i style="background:${CMP()[k % 8]}"></i>${esc(q.short)}</button>`).join("")}</div>
+      <div id="c-cmp" class="chart h-lg" style="margin-top:14px"></div>
+      <p class="caption">Solid: observed. Dashed: forecast. Arctic sea ice is shown as measured, so its decline appears as a falling line. Standardising allows visual comparison only; it does not make the quantities physically equivalent.</p></div>
+  </section>`;
+}
+function CMP() { return [cssv("--ocean"), cssv("--green"), cssv("--ink"), cssv("--crit"), cssv("--warn"), cssv("--ink-3"), "#6c8a3f", "#8a6a4f"]; }
+function afterForecast() {
+  const p = BY[state.lab];
+  $("#lab-p").onchange = e => { state.lab = e.target.value; state.labModel = null; route(true); };
+  $("#lab-m").onchange = e => { state.labModel = e.target.value; route(true); };
+  $$("[data-h]").forEach(b => b.onclick = () => { state.labH = +b.dataset.h; route(true); });
+  $$("[data-lab]").forEach(r => { const go = () => { state.lab = r.dataset.lab; state.labModel = null; route(); }; r.onclick = go; r.onkeydown = e => { if (e.key === "Enter") go(); }; });
+  $$("[data-cmp]").forEach(b => b.onclick = () => { const id = b.dataset.cmp; state.cmp = state.cmp.includes(id) ? state.cmp.filter(x => x !== id) : [...state.cmp, id]; b.setAttribute("aria-pressed", state.cmp.includes(id)); drawCompare(); });
+  drawSeries($("#c-lab"), p, { range: "10", model: state.labModel, horizonEnd: D.meta.report_horizons[String(state.labH)] });
+  drawCompare();
+}
+function drawCompare() {
+  const c = freshChart("#c-cmp"), cols = CMP(), series = [];
+  ORDER.forEach((p, k) => {
+    if (!state.cmp.includes(p.id)) return;
+    const ob = p.observations, f = p.forecast, m = f.models[f.selected];
+    const mv = ma12(ob.values.concat(m.mean)), dts = ob.dates.concat(f.dates);
+    const b = p.analysis.baseline_1991_2020, sdv = b.interannual_sd_detrended || b.std_annual_mean || 1;
+    const nObs = ob.dates.length, col = cols[k % cols.length], o = [], fc = [];
+    for (let i = 0; i < dts.length; i++) { if (dts[i] < "1993-01" || mv[i] == null) continue; const pt = [T(dts[i]), (mv[i] - b.mean) / sdv]; if (i < nObs) o.push(pt); if (i >= nObs - 1) fc.push(pt); }
+    series.push({ name: p.short, type: "line", symbol: "none", data: o, lineStyle: { color: col, width: 1.8 }, itemStyle: { color: col } });
+    series.push({ name: "_" + p.short, type: "line", symbol: "none", data: fc, lineStyle: { color: col, width: 1.8, type: [5, 4] }, itemStyle: { color: col } });
+  });
+  c.setOption({
+    animation: false, grid: { left: 8, right: 14, top: 16, bottom: 24, containLabel: true },
+    tooltip: { trigger: "axis", ...tipBox(), formatter: ps => { const rows = ps.filter(x => !x.seriesName.startsWith("_")); const fcs = ps.filter(x => x.seriesName.startsWith("_")); const use = rows.length ? rows : fcs; if (!use.length) return "";
+      return `<div style="font-weight:600;margin-bottom:4px">${dateOf(use[0].value[0])}${rows.length ? "" : " · forecast"}</div>` + use.map(x => tipRow(x.marker, x.seriesName.replace(/^_/, ""), fmt(x.value[1], 2, true) + " SD")).join(""); } },
+    xAxis: timeAxis(), yAxis: { type: "value", ...axisStyle(), name: "standard deviations", nameGap: 12 },
+    series: series.length ? series : [{ type: "line", data: [] }]
+  });
+}
+
+/* ================================================================ map */
+const LAYERS = [
+  ["Temperature", [
+    ["anom", "Anomaly, Jul–Sep 2026", "°C vs 1951–1980", "gistemp", 2, [-3, 3], "rb"],
+    ["change", "Change, 1981–2025", "°C over the period, linear trend", "gistemp", 3, [-3, 3], "rb"]]],
+  ["Precipitation", [
+    ["prec_anom", "Anomaly, Oct 2025–Sep 2026", "mm/day vs 1991–2020", "power", "PRECTOTCORR_anom_last12", [-2, 2], "bg"],
+    ["prec_trend", "Trend, 1981–2025", "mm/day per decade", "power", "PRECTOTCORR_trend_per_decade", [-.5, .5], "bg"]]],
+  ["Surface temperature", [
+    ["ts_anom", "Skin temperature anomaly, Oct 2025–Sep 2026", "°C vs 1991–2020", "power", "TS_anom_last12", [-2.5, 2.5], "rb"]]],
+  ["Aerosols", [
+    ["aod_anom", "Optical depth anomaly, Aug 2025–Jul 2026", "AOD vs 2001–2020", "power", "AOD_55_anom_last12", [-.1, .1], "rb"],
+    ["aod_trend", "Optical depth trend, 2001–2025", "AOD per decade", "power", "AOD_55_trend_per_decade", [-.05, .05], "rb"]]]
+];
+const LAYER = Object.fromEntries(LAYERS.flatMap(([g, ls]) => ls.map(l => [l[0], { group: g, label: l[1], unit: l[2], src: l[3], key: l[4], range: l[5], pal: l[6] }])));
+const PALS = { rb: ["#2f5c86", "#6f96bb", "#b9cee0", "#f1f0eb", "#e6bcae", "#c57a66", "#9b3b2f"], bg: ["#7d5b2b", "#b3925b", "#dfcfa8", "#f1f0eb", "#a7cfc3", "#5a9c8c", "#2a675b"] };
+// Equal Earth projection (Šavrič, Patterson & Jenny, 2018): equal-area, suited to global thematic maps.
+const EE = (() => { const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, M = Math.sqrt(3) / 2, R = Math.PI / 180;
+  const project = ([lon, lat]) => { const l = lon * R, t = Math.asin(M * Math.sin(lat * R)), t2 = t * t, t6 = t2 * t2 * t2;
+    return [l * Math.cos(t) / (M * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2))), -t * (A1 + A2 * t2 + t6 * (A3 + A4 * t2))]; };
+  const unproject = ([x, yy]) => { const y = -yy; let t = y; for (let i = 0; i < 14; i++) { const t2 = t * t, t6 = t2 * t2 * t2; t -= (t * (A1 + A2 * t2 + t6 * (A3 + A4 * t2)) - y) / (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2)); }
+    const t2 = t * t, t6 = t2 * t2 * t2; return [M * x * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2)) / Math.cos(t) / R, Math.asin(Math.sin(t) / M) / R]; };
+  return { project, unproject }; })();
+function viewMap() {
+  const L = LAYER[state.layer], R = D.maps.regions;
+  const names = { arctic_64_90N: "Arctic, 64–90°N", nh_midlat_24_64N: "Northern mid-latitudes", tropics_24S_24N: "Tropics, 24°S–24°N", sh_midlat_64_24S: "Southern mid-latitudes", antarctic_90_64S: "Antarctic, 90–64°S", global: "Globe" };
+  const dd = Math.abs(L.range[1]) < .1 ? 3 : Math.abs(L.range[1]) < 1 ? 2 : 1;
+  return `
+  <header class="p-head"><p class="eyebrow">Geographic view</p><h1>Where the changes are happening</h1>
+    <p class="desc">Temperature layers are NASA GISTEMP v4 grids averaged into 10° blocks. Precipitation, surface-temperature and aerosol layers show the 126 NASA POWER sample points. Equal Earth projection, so areas appear in true proportion.</p></header>
+  <div class="map-layout">
+    <nav class="layer-list" aria-label="Map layers">${LAYERS.map(([g, ls]) => `<div class="layer-group"><span class="eyebrow">${g}</span>${ls.map(l => `<button type="button" data-layer="${l[0]}" aria-pressed="${state.layer === l[0]}">${esc(l[1])}</button>`).join("")}</div>`).join("")}</nav>
+    <div style="display:grid;gap:28px;min-width:0">
+      <div class="surface">
+        <div class="chart-top" style="align-items:flex-start"><div><h2>${esc(L.group)}: ${esc(L.label.charAt(0).toLowerCase() + L.label.slice(1))}</h2><p class="xs faint" style="margin-top:3px">${L.src === "gistemp" ? "NASA GISTEMP v4 · GHCNv4 + ERSSTv5 · 1200 km smoothing" : "NASA POWER · MERRA-2 reanalysis"}</p></div>
+          <div class="scale" aria-label="Colour scale"><div class="bar" style="background:linear-gradient(90deg,${PALS[L.pal].join(",")})"></div><div class="ticks">${[L.range[0], L.range[0] / 2, 0, L.range[1] / 2, L.range[1]].map(t => `<span>${fmt(t, dd, true)}</span>`).join("")}</div><span class="xs faint">${esc(L.unit)} · ${L.pal === "bg" ? "brown drier, teal wetter" : "blue lower, red higher"}</span></div></div>
+        <div id="c-map" class="chart map-box" role="img" aria-label="${esc(L.label)} map"></div>
+        <p class="caption">${L.src === "gistemp" ? "Blank blocks have insufficient station or ocean coverage. Colours saturate at the ends of the scale; hover a block for its exact value." : "Each dot is one sample point on a 20° grid between 60°S and 60°N; polar regions are not sampled. Colours saturate at the ends of the scale; hover a dot for its exact value."}</p>
+      </div>
+      <div class="cols">
+        <section class="p-section"><div class="sec-head"><div><h2>Temperature by latitude</h2><p>GISTEMP zonal means; warming increases toward the Arctic.</p></div></div><div id="c-zonal" class="chart h-sm"></div></section>
+        <section class="p-section"><div class="sec-head"><div><h2>Regional summary</h2><p>Area-weighted GISTEMP latitude bands.</p></div></div>
+          <div class="tbl"><table class="t"><thead><tr><th>Region</th><th class="r">Change 1981–2025</th><th class="r">Jul–Sep 2026</th></tr></thead><tbody>${Object.entries(R).map(([k, v]) => `<tr${k === "global" ? ' style="font-weight:600"' : ""}><td>${names[k]}</td><td class="r num">${fmt(v.change_1981_2025, 2, true)} °C</td><td class="r num">${fmt(v.latest_quarter_anom, 2, true)} °C</td></tr>`).join("")}</tbody></table></div>
+          <p class="caption">Jul–Sep 2026 anomalies are relative to 1951–1980.</p></section>
+      </div>
+    </div>
+  </div>`;
+}
+function afterMap() { $$("[data-layer]").forEach(b => b.onclick = () => { state.layer = b.dataset.layer; route(true); }); drawMap(); drawZonal(); }
+function drawMap() {
+  const L = LAYER[state.layer], c = mkChart($("#c-map"));
+  const edge = []; for (let la = -90; la <= 90; la += 3) edge.push([180, la]); for (let la = 90; la >= -90; la -= 3) edge.push([-180, la]);
+  const grat = []; for (let la = -60; la <= 60; la += 30) { const l = []; for (let lo = -180; lo <= 180; lo += 5) l.push([lo, la]); grat.push(l); }
+  for (let lo = -120; lo <= 120; lo += 60) { const l = []; for (let la = -90; la <= 90; la += 5) l.push([lo, la]); grat.push(l); }
+  const poly = (api, pts) => pts.map(q => api.coord(q));
+  const tipLL = (lat, lon, v, dd) => `<span style="color:${cssv("--ink-2")}">${latLab(lat)}, ${lonLab(lon)}</span><br><b style="font-family:IBM Plex Mono,monospace;font-weight:500">${v == null ? "no data" : fmt(v, dd, true)}</b> ${esc(L.unit)}`;
+  let main;
+  if (L.src === "gistemp") {
+    const cells = D.maps.gistemp_grid.cells.filter(r => r[L.key] != null).map(r => [r[1], r[0], r[L.key]]);
+    main = { type: "custom", coordinateSystem: "geo", z: 2, data: cells, renderItem: (pa, api) => {
+      const lo = api.value(0), la = api.value(1), pts = [];
+      for (let y = la - 5; y <= la + 5; y += 2.5) pts.push([lo - 5, y]); for (let y = la + 5; y >= la - 5; y -= 2.5) pts.push([lo + 5, y]);
+      return { type: "polygon", shape: { points: poly(api, pts) }, style: { fill: api.visual("color"), stroke: api.visual("color"), lineWidth: .4 } }; },
+      tooltip: { formatter: o => tipLL(o.value[1], o.value[0], o.value[2], 2) } };
+  } else {
+    const ci = D.maps.power_points.columns.indexOf(L.key);
+    main = { type: "scatter", coordinateSystem: "geo", z: 5, data: D.maps.power_points.rows.map(r => [r[1], r[0], r[ci]]), symbolSize: 12,
+      itemStyle: { borderColor: cssv("--surface"), borderWidth: 1.2 }, emphasis: { scale: 1.4 }, tooltip: { formatter: o => tipLL(o.value[1], o.value[0], o.value[2], 3) } };
+  }
+  c.setOption({
+    animation: false, backgroundColor: "transparent", tooltip: { trigger: "item", ...tipBox() },
+    geo: { map: "world", projection: EE, roam: false, silent: true, z: 4, left: 4, right: 4, top: 4, bottom: 4,
+      itemStyle: { areaColor: "transparent", borderColor: cssv("--map-line"), borderWidth: .6 }, emphasis: { disabled: true }, select: { disabled: true } },
+    visualMap: { show: false, type: "continuous", min: L.range[0], max: L.range[1], inRange: { color: PALS[L.pal] }, seriesIndex: 2, dimension: 2 },
+    series: [
+      { type: "custom", coordinateSystem: "geo", z: 0, silent: true, data: [0], renderItem: (pa, api) => ({ type: "polygon", shape: { points: poly(api, edge) }, style: { fill: cssv("--map-ocean"), stroke: cssv("--rule"), lineWidth: 1 } }), tooltip: { show: false } },
+      { type: "lines", coordinateSystem: "geo", polyline: true, z: 1, silent: true, data: grat.map(coords => ({ coords })), lineStyle: { color: cssv("--rule"), width: .6, opacity: 1 }, tooltip: { show: false } },
+      main
+    ]
+  });
+}
+function drawZonal() {
+  const z = D.maps.gistemp_zonal, c = mkChart($("#c-zonal")), ax = axisStyle();
+  c.setOption({
+    animation: false, grid: { left: 8, right: 16, top: 36, bottom: 24, containLabel: true },
+    legend: { top: 0, left: 0, itemWidth: 16, itemHeight: 2, textStyle: { color: cssv("--ink-2"), fontSize: 11 } },
+    tooltip: { trigger: "axis", axisPointer: { type: "line", axis: "y", lineStyle: { color: cssv("--ink-3"), type: "dashed" } }, ...tipBox(),
+      formatter: ps => `<div style="font-weight:600;margin-bottom:4px">${latLab(ps[0].value[1])}</div>` + ps.map(x => tipRow(x.marker, x.seriesName, fmt(x.value[0], 2, true) + " °C")).join("") },
+    yAxis: { type: "value", min: -90, max: 90, interval: 30, ...ax, axisLabel: { ...ax.axisLabel, formatter: latLab } },
+    xAxis: { type: "value", ...ax, name: "°C", nameLocation: "end", nameGap: 6 },
+    series: [
+      { name: "Change 1981–2025", type: "line", symbol: "none", data: z.lat.map((l, i) => [z.change[i], l]), lineStyle: { color: cssv("--crit"), width: 2 }, itemStyle: { color: cssv("--crit") } },
+      { name: "Jul–Sep 2026 anomaly", type: "line", symbol: "none", data: z.lat.map((l, i) => [z.anom[i], l]), lineStyle: { color: cssv("--ink-2"), width: 1.4, type: [5, 4] }, itemStyle: { color: cssv("--ink-2") } }
+    ]
+  });
+}
+
+/* ================================================================ insights */
+function viewInsights() {
+  const groups = [["Direction of change", ["increasing", "likely", "decreasing", "uncertain"]], ["Notable details", ["detail"]], ["Regional patterns", ["regional"]],
+    ["Relationships", ["correlation"]], ["Uncertainty", ["uncertainty"]], ["Why it matters", ["why"]]];
+  const C = D.correlations;
+  return `
+  <header class="p-head"><p class="eyebrow">Insights</p><h1>What the observations and forecasts indicate</h1>
+    <p class="desc">Every statement is generated from the numbers on this site. Statements about physical causes refer to established climate science, not to the correlations computed here. Forecasts are statistical expectations, not guaranteed outcomes.</p></header>
+  <div class="findings">${groups.map(([g, ks]) => D.insights.filter(i => ks.includes(i.kind)).map((f, j) => `<div class="finding"><span class="eyebrow">${j === 0 ? g : ""}</span><div><h3>${esc(f.title)}</h3><p>${esc(f.text)}</p></div></div>`).join("")).join("")}</div>
+  <section class="sec" aria-labelledby="h-corr">
+    <div class="sec-head"><div><h2 id="h-corr">Correlation between indicators</h2><p>Pearson correlation of annual means, ${esc(C.years)}. ${esc(C.caveat)}</p></div></div>
+    <div class="cols"><div class="surface"><h3>Year-to-year changes</h3><p class="xs faint" style="margin:2px 0 8px">Shared long-term trends removed</p><div id="c-corr" class="chart"></div></div>
+      <div class="surface"><h3>Annual levels</h3><p class="xs faint" style="margin:2px 0 8px">Inflated by shared trends</p><div id="c-corr2" class="chart"></div></div></div>
+  </section>`;
+}
+function afterInsights() { drawCorr("#c-corr", D.correlations.differences); drawCorr("#c-corr2", D.correlations.levels); }
+function drawCorr(sel, M) {
+  const C = D.correlations, c = mkChart($(sel)), names = C.keys.map(k => BY[k].short), data = [];
+  M.forEach((row, i) => row.forEach((v, j) => data.push([j, i, v])));
+  c.setOption({
+    animation: false, grid: { left: 8, right: 8, top: 4, bottom: 4, containLabel: true },
+    tooltip: { ...tipBox(), formatter: o => `${esc(names[o.value[1]])} × ${esc(names[o.value[0]])}<br><b style="font-family:IBM Plex Mono,monospace;font-weight:500">r = ${fmt(o.value[2], 2, true)}</b>` },
+    xAxis: { type: "category", data: names, axisLabel: { rotate: 38, color: cssv("--ink-2"), fontSize: 10.5 }, axisLine: { show: false }, axisTick: { show: false } },
+    yAxis: { type: "category", data: names, inverse: true, axisLabel: { color: cssv("--ink-2"), fontSize: 10.5 }, axisLine: { show: false }, axisTick: { show: false } },
+    visualMap: { show: false, min: -1, max: 1, inRange: { color: PALS.rb } },
+    series: [{ type: "heatmap", data, label: { show: true, formatter: o => fmt(o.value[2], 2), fontSize: 10, fontFamily: "IBM Plex Mono, monospace", color: "#1c2320" }, itemStyle: { borderColor: cssv("--surface"), borderWidth: 2 } }]
+  });
+}
+
+/* ================================================================ methods */
+function viewMethods() {
+  const any = ORDER[0], nu = Object.values(any.modelling.not_used), mods = any.modelling.models;
+  return `
+  <header class="p-head"><p class="eyebrow">Data and methods</p><h1>Sources, checks and models</h1>
+    <p class="desc">Where every number comes from, how it was verified, and how the forecasts were built and tested.</p></header>
+  <section class="sec" aria-labelledby="h-ds"><div class="sec-head"><div><h2 id="h-ds">Datasets</h2><p>Observation, publication and retrieval dates are tracked separately for each file.</p></div></div>
+    <div class="tbl"><table class="t"><thead><tr><th>Indicator</th><th>Dataset and agency</th><th>Resolution</th><th>Coverage</th><th class="r">Observations</th><th>Published</th><th class="r">Retrieved (UTC)</th></tr></thead><tbody>
+    ${ORDER.map(p => { const s = p.source; return `<tr><td><b style="font-weight:500">${esc(p.short)}</b><div class="xs faint">${esc(p.unit)}</div></td><td style="min-width:240px">${esc(s.dataset)}<div class="xs faint">${esc(s.agency)}</div><a class="xs" href="${esc(s.landing_page)}" target="_blank" rel="noopener">${esc(s.landing_page.replace(/^https?:\/\//, ""))}</a></td>
+      <td class="small">${esc(s.temporal_resolution)}</td><td class="small" style="min-width:220px">${esc(s.spatial_coverage)}</td><td class="r num">${ym(p.dates.first_observation)} – ${ym(p.dates.latest_observation)}</td><td class="small">${esc(p.dates.dataset_published || "Not stated")}</td><td class="r num small">${esc((p.dates.retrieved_utc || "").slice(0, 16).replace("T", " "))}</td></tr>`; }).join("")}</tbody></table></div></section>
+  <div class="cols">
+    <section class="sec"><div class="sec-head"><div><h2>Data integrity</h2></div></div><ul class="notes">
+      <li>All values come from agency files; none are typed in, simulated or randomly generated.</li>
+      <li>${esc(D.meta.manifest.snapshot || "Pipeline retrieval")}: each stored file's SHA-256 was checked against the bytes received from the agency.</li>
+      <li>NASA does not host the long-term in-situ CO₂ record or an open global SST time series. NOAA Mauna Loa CO₂ (shown on NASA Vital Signs) and NOAA ERSSTv5 (the ocean input to GISTEMP) are used and labelled as such.</li>
+      <li>Missing source months stay missing on charts. Two NSIDC months (Dec 1987, Jan 1988) are interpolated only inside model fitting and are flagged.</li>
+      <li>Vegetation (NDVI) was investigated but is not shown: no NASA NDVI series could be downloaded without an Earthdata login.</li></ul></section>
+    <section class="sec"><div class="sec-head"><div><h2>Update schedule</h2></div></div><ul class="notes">
+      <li>Updates follow each source's release cycle, not real time. A scheduled job runs the pipeline daily and stores a new file only when it passes validation.</li>
+      <li>GISTEMP and NOAA NCEI publish monthly, mid-month; NOAA CO₂ in the first week; NSIDC in the first days of the month; NASA sea level about weekly; POWER after month end, with aerosols two to three months behind.</li>
+      <li>If a source is down or returns implausible data, the last verified file is kept and the site stays online.</li></ul></section>
+  </div>
+  <section class="sec"><div class="sec-head"><div><h2>Analysis and forecasting</h2></div></div>
+    <div class="cols"><ul class="notes">
+      <li><b>Trend:</b> least squares with calendar-month terms and Newey–West (12-month) standard errors over the full record and the last 30 years; Mann–Kendall test and Theil–Sen slope on annual means; latest 15-year rate against the previous 15 years.</li>
+      <li><b>Seasonality:</b> robust STL decomposition (period 12); seasonal strength decides whether models include a seasonal component.</li>
+      <li><b>Anomalies:</b> STL remainder beyond ±3 robust (MAD-based) standard deviations.</li>
+      <li><b>Correlation:</b> Pearson correlation of annual means and of their year-to-year differences.</li></ul>
+    <ul class="notes">
+      <li><b>Models compared:</b> ${Object.values(mods).map(m => esc(m.label)).join("; ")}.</li>
+      <li><b>Validation:</b> rolling-origin, expanding-window evaluation; 20 origins six months apart, each forecasting to October 2028. Chronological only. MAE, RMSE, MAPE (positive quantities), MASE, bias and skill against the best simple baseline.</li>
+      <li><b>Selection:</b> lowest mean RMSE across horizons, chosen separately for each indicator.</li>
+      <li><b>Intervals:</b> Gaussian bands scaled by the selected model's horizon-specific out-of-sample RMSE; walk-forward residuals checked with Ljung–Box and Shapiro–Wilk tests.</li>
+      ${nu.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div></section>`;
+}
+
+const VIEW = { overview: viewOverview, indicators: viewIndicators, forecast: viewForecast, map: viewMap, insights: viewInsights, methods: viewMethods };
+const AFTER = { overview: afterOverview, indicators: afterIndicators, forecast: afterForecast, map: afterMap, insights: afterInsights };
+
+/* ================================================================ global events */
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-goto]"); if (g) { goParam(g.dataset.goto); return; }
+  const th = e.target.closest("[data-theme-set]");
+  if (th) { const v = th.dataset.themeSet; if (v === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", v);
+    $$("[data-theme-set]").forEach(b => b.setAttribute("aria-pressed", b === th)); try { localStorage.setItem("evs-theme", v); } catch (_) { } if (D) route(true); }
+});
+$("#menu-btn").addEventListener("click", () => { const p = $("#mobile-panel"); p.hidden = !p.hidden; $("#menu-btn").setAttribute("aria-expanded", String(!p.hidden)); });
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => D && route(true));
+window.addEventListener("hashchange", () => D && route());
+
+(async function init() {
+  try { const v = localStorage.getItem("evs-theme"); if (v && v !== "system") { document.documentElement.setAttribute("data-theme", v); $$("[data-theme-set]").forEach(b => b.setAttribute("aria-pressed", b.dataset.themeSet === v)); } } catch (_) { }
+  buildNav();
+  try {
+    if (typeof echarts === "undefined") throw new Error("The charting library could not be loaded. Check the connection to cdnjs.cloudflare.com and reload.");
+    D = await loadData();
+    ORDER = D.parameters.filter(p => p.status === "ok");
+    ORDER.forEach(p => BY[p.id] = p);
+    const run = D.meta.generated_utc.slice(0, 16).replace("T", " ") + " UTC", ret = retrieved().slice(0, 10);
+    $("#fresh").innerHTML = `<span class="dot" aria-hidden="true"></span><div><span class="lbl">Data retrieved </span><b>${esc(ret)}</b><br><span class="lbl">Models run </span><span class="mono">${esc(run)}</span></div>`;
+    $("#fresh").title = "Each indicator uses its latest release; see Data & methods for publication delays";
+    $("#mfresh").textContent = `Data retrieved ${ret} · models run ${run}`;
+    $("#foot-run").textContent = `Pipeline v${D.meta.pipeline_version} · models run ${run} · reference month ${ym(D.meta.reference_month)}`;
+    route();
+  } catch (e) {
+    $("#main").innerHTML = `<div class="wrap"><div class="view"><div class="err" role="alert"><b>The dashboard data could not be loaded.</b><span class="small muted">${esc(e.message || e)}</span><span class="small muted">The data file or API may be briefly unavailable. Reload the page in a minute; if the problem continues, check the latest run of the data-update workflow.</span></div></div></div>`;
+  }
+})();
+</script>

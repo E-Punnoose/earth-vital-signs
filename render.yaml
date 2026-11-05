@@ -1,0 +1,18 @@
+# Render Blueprint: FastAPI backend (free plan). Deploys on every push, so the
+# daily data commit from GitHub Actions refreshes the API automatically.
+services:
+  - type: web
+    name: earth-vital-signs-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: CORS_ORIGINS
+        value: "*"            # tighten to your Vercel/Pages URL after deployment
+      - key: ADMIN_TOKEN
+        generateValue: true   # protects POST /api/admin/refresh
