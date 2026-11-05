@@ -112,26 +112,6 @@ uvicorn api.main:app --reload       # http://localhost:8000  (dashboard at /, AP
 · `/api/compare?ids=co2,gmst&normalize=zscore` · `/api/ranking` · `/api/map/{gistemp_grid|gistemp_zonal|power_points|regions}`
 · `/api/insights` · `/api/correlations` · `POST /api/admin/refresh` (header `X-Admin-Token`). Interactive docs at `/docs`.
 
-## Deploy (public)
-
-Deployment needs accounts that only you can create; nothing below requires payment.
-
-**Option A — GitHub only (simplest, free).** Frontend on GitHub Pages, daily data/model refresh by GitHub Actions.
-1. Create a new GitHub repository and push this folder (`git init && git add . && git commit -m init && git remote add origin … && git push -u origin main`).
-2. Repository → Settings → Pages → Source: **GitHub Actions**.
-3. Settings → Actions → General → Workflow permissions: **Read and write**.
-4. Actions tab → *Update data and forecasts* → **Run workflow**. When it finishes the dashboard is live at `https://<user>.github.io/<repo>/`. It re-runs daily at 06:17 UTC.
-
-**Option B — Vercel frontend + Render API (as specified).** Do Option A steps 1 and 3 first.
-1. Render → New → **Blueprint** → select the repo (uses `render.yaml`). Copy the service URL, e.g. `https://earth-vital-signs-api.onrender.com`; check `/api/health`.
-2. GitHub → Settings → Secrets and variables → Actions → **Variables** → `API_BASE` = that URL. Run the workflow once so `site/` is rebuilt pointing at the API.
-3. Vercel → Add New Project → import the repo → Framework *Other*, no build command, output directory `site` (already in `vercel.json`) → Deploy.
-4. On Render set `CORS_ORIGINS` to your Vercel URL. Every daily data commit redeploys both.
-   (Render's free plan sleeps after inactivity; the frontend falls back to its bundled copy of the data while the API wakes.)
-
-**Optional:** add repository secret `EARTHDATA_TOKEN` (from https://urs.earthdata.nasa.gov → Generate Token) to also pull the
-PO.DAAC GMSL file.
-
 ## Updating data
 
 Automatic: the workflow runs `pipeline.run --fetch`, which only replaces a raw file when the new download validates
@@ -139,8 +119,3 @@ Automatic: the workflow runs `pipeline.run --fetch`, which only replaces a raw f
 tests, regenerates `docs/RESULTS.md`, rebuilds `site/` and commits. Manual: run the same commands locally, or call
 `POST /api/admin/refresh` on the API. Update frequency follows the sources (monthly for most; weekly for sea level).
 
-### Indicators not included
-
-Vegetation (NDVI) was investigated but is not shown: in November 2026 no NASA NDVI time series could be downloaded
-without an Earthdata login (NASA Earth Observations was decommissioned in September 2026; AppEEARS and Giovanni need
-authentication). Rather than display an empty section or substitute non-NASA data, the indicator was removed.
