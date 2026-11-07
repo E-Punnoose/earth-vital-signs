@@ -1,4 +1,4 @@
-# Results — models run 2026-11-06T14:20:11+00:00
+# Results — models run 2026-11-07T13:01:03+00:00
 
 Generated automatically from `data/processed/dashboard.json`. Reference month October 2026; forecast window November 2026 – October 2028.
 
@@ -44,7 +44,7 @@ Rolling-origin evaluation: 20 origins, 6 months apart, each forecasting to Octob
 | Sea surface temperature | ARIMA / SARIMA ARIMA(1, 0, 1) trend=ct | 0.1214 | 0.09328 | n/a | 0.797 | +16% | Persistence (naive) | 82% / 94% | no significant autocorrelation left in one-step errors (Ljung-Box p > 0.05); no significant bias; errors consistent with normality. |
 | Global temperature | ARIMA / SARIMA ARIMA(2, 1, 1)x(0, 1, 1)[12] | 0.1717 | 0.1315 | n/a | 0.720 | +23% | Random walk with drift | 88% / 97% | no significant autocorrelation left in one-step errors (Ljung-Box p > 0.05); systematic bias of -0.029 per month (t-test p <= 0.05); errors consistent with normality. |
 | Arctic sea ice | ARIMA / SARIMA ARIMA(1, 1, 2)x(0, 1, 1)[12] | 0.3886 | 0.3167 | 3.63% | 0.874 | +16% | Random walk with drift | 85% / 98% | no significant autocorrelation left in one-step errors (Ljung-Box p > 0.05); no significant bias; errors consistent with normality. |
-| Land temperature | ARIMA / SARIMA ARIMA(1, 0, 1) trend=ct | 0.2143 | 0.1673 | n/a | 0.712 | +20% | Seasonal naive | 90% / 98% | no significant autocorrelation left in one-step errors (Ljung-Box p > 0.05); systematic bias of -0.0657 per month (t-test p <= 0.05); errors consistent with normality. |
+| Land temperature | ARIMA / SARIMA ARIMA(1, 0, 1) trend=ct | 0.2144 | 0.1673 | n/a | 0.712 | +20% | Seasonal naive | 90% / 98% | no significant autocorrelation left in one-step errors (Ljung-Box p > 0.05); systematic bias of -0.0653 per month (t-test p <= 0.05); errors consistent with normality. |
 | Precipitation | ARIMA / SARIMA ARIMA(1, 0, 1) trend=ct | 0.1448 | 0.1162 | 4.50% | 0.751 | +23% | Persistence (naive) | 87% / 98% | no significant autocorrelation left in one-step errors (Ljung-Box p > 0.05); no significant bias; errors consistent with normality. |
 
 ### All models (RMSE)
@@ -53,11 +53,11 @@ Rolling-origin evaluation: 20 origins, 6 months apart, each forecasting to Octob
 |---|---|---|---|---|---|---|---|---|
 | CO₂ | 4.499 | 4.38 | 1.267 | 3.506 | **0.5837** | 1.109 | 0.9258 | 1.081 |
 | Sea level | 8.876 | 6.047 | 3.081 | 5.686 | 3.187 | 3.229 | **2.643** | 2.723 |
-| Aerosol optical depth | 0.02196 | 0.01167 | 0.01191 | 0.009893 | **0.009827** | 0.01145 | 0.01007 | 0.01573 |
+| Aerosol optical depth | 0.02196 | 0.01167 | 0.01191 | 0.009893 | **0.009827** | 0.01145 | 0.01021 | 0.01573 |
 | Sea surface temperature | 0.1451 | 0.1539 | 0.1474 | 0.1408 | 0.1238 | 0.1453 | **0.1214** | 0.1381 |
 | Global temperature | 0.2409 | 0.2301 | 0.2242 | 0.182 | 0.1824 | 0.2098 | **0.1717** | 0.2163 |
 | Arctic sea ice | 5.119 | 0.4624 | 0.4618 | 0.4867 | 0.4571 | 0.5977 | **0.3886** | 0.5677 |
-| Land temperature | 0.2885 | 0.2678 | 0.2935 | 0.2162 | 0.2197 | 0.2518 | **0.2143** | 0.2671 |
+| Land temperature | 0.2885 | 0.2678 | 0.2935 | 0.2162 | 0.2197 | 0.2518 | **0.2144** | 0.2671 |
 | Precipitation | 0.189 | 0.1943 | 0.1922 | 0.1449 | 0.1542 | 0.155 | **0.1448** | 0.1711 |
 
 ## Not available
