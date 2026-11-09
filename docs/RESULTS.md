@@ -1,4 +1,4 @@
-# Results — models run 2026-11-08T13:26:39+00:00
+# Results — models run 2026-11-09T16:19:35+00:00
 
 Generated automatically from `data/processed/dashboard.json`. Reference month October 2026; forecast window November 2026 – October 2028.
 
