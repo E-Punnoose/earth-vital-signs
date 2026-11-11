@@ -5,7 +5,7 @@
       "last_observation": "2026-09",
       "note": "",
       "retrieval_method": "direct HTTPS",
-      "retrieved_utc": "2026-11-10T14:51:01+00:00",
+      "retrieved_utc": "2026-11-11T14:17:11+00:00",
       "sha256": "4c64eda288bce32b8d76926278f346ecea1e53506df8ee72a3d5accb0657c416",
       "source_published": null,
       "url": "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
@@ -15,7 +15,7 @@
       "last_observation": "2026-09",
       "note": "",
       "retrieval_method": "direct HTTPS",
-      "retrieved_utc": "2026-11-10T14:51:01+00:00",
+      "retrieved_utc": "2026-11-11T14:17:12+00:00",
       "sha256": "0ba691cd181374b2aa8c1289a125504e3e892911747c5554e0c7414502135ab5",
       "source_published": null,
       "url": "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts.csv"
@@ -25,7 +25,7 @@
       "last_observation": "2026 Jul-Sep2026",
       "note": "",
       "retrieval_method": "amaps.cgi + 10x10 cos-lat block mean",
-      "retrieved_utc": "2026-11-10T14:52:31+00:00",
+      "retrieved_utc": "2026-11-11T14:18:48+00:00",
       "sha256": "28b2d1085ba79180c2a0b25c1d5c93e47c7ec083e29dab4883d2b396fab93da1",
       "source_published": null,
       "url": "https://data.giss.nasa.gov/gistemp/maps/"
@@ -35,7 +35,7 @@
       "last_observation": "2026 Jul-Sep2026",
       "note": "",
       "retrieval_method": "amaps.cgi + 10x10 cos-lat block mean",
-      "retrieved_utc": "2026-11-10T14:52:31+00:00",
+      "retrieved_utc": "2026-11-11T14:18:48+00:00",
       "sha256": "306646b20ff7d902793b44742ef29cec584365b87aeca0e3fdbd483205e2c500",
       "source_published": null,
       "url": "https://data.giss.nasa.gov/gistemp/maps/"
@@ -45,7 +45,7 @@
       "last_observation": "202609",
       "note": "",
       "retrieval_method": "POWER API x126 points",
-      "retrieved_utc": "2026-11-10T14:52:27+00:00",
+      "retrieved_utc": "2026-11-11T14:18:45+00:00",
       "sha256": "f7bb3494668c0ea79ae8a0129b1c26470f1ba4b1dd5c959bf71d7e9f2f7560f4",
       "source_published": null,
       "url": "https://power.larc.nasa.gov/api/temporal/monthly/point"
@@ -55,7 +55,7 @@
       "last_observation": "202609",
       "note": "",
       "retrieval_method": "POWER API x126 points",
-      "retrieved_utc": "2026-11-10T14:52:27+00:00",
+      "retrieved_utc": "2026-11-11T14:18:45+00:00",
       "sha256": "7f876ce42c9d449d40c5f4c470e5432a079a8e9757a97aefe17a684f288fa848",
       "source_published": null,
       "url": "https://power.larc.nasa.gov/api/temporal/monthly/point"
@@ -75,7 +75,7 @@
       "last_observation": "2026-09",
       "note": "",
       "retrieval_method": "direct HTTPS",
-      "retrieved_utc": "2026-11-10T14:51:02+00:00",
+      "retrieved_utc": "2026-11-11T14:17:12+00:00",
       "sha256": "f8f14ca815dbeaac52068635feae7180109cdc63a67de2387df1835846354b3f",
       "source_published": null,
       "url": "https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/globe/ocean/tavg/1/0/1950-2026/data.csv"
@@ -85,7 +85,7 @@
       "last_observation": "2026-09",
       "note": "",
       "retrieval_method": "direct HTTPS",
-      "retrieved_utc": "2026-11-10T14:51:01+00:00",
+      "retrieved_utc": "2026-11-11T14:17:12+00:00",
       "sha256": "25c161f9212d3bb0328e67542f98d182718bfa8811da6f1216f10fd8377a7c71",
       "source_published": "Fri Oct  9 13:08:07 2026",
       "url": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv"
@@ -95,7 +95,7 @@
       "last_observation": "2026-10",
       "note": "",
       "retrieval_method": "direct HTTPS (12 monthly files merged)",
-      "retrieved_utc": "2026-11-10T14:51:04+00:00",
+      "retrieved_utc": "2026-11-11T14:17:16+00:00",
       "sha256": "fbf6c24520eb778a98fa284ed8cf909301f449eb1314a8d44d8b662f8220a7fa",
       "source_published": null,
       "url": "https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/"
